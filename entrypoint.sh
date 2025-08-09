@@ -4,16 +4,24 @@ set -e
 
 echo "Entrypoint script started as user: $(whoami)"
 
-echo "Creating environment file for cron jobs..."
+echo "Taking ownership of volume directories..."
+chown -R appuser:appuser /app/media
+chown -R appuser:appuser /app/staticfiles
+
+echo "Setting mask..."
+umask 0002
 
 echo "Applying database migrations..."
-python manage.py migrate --noinput
+gosu appuser python manage.py migrate --noinput
 
-if [ "$DJANGO_ENV" != "development" ]; then
-    echo "Collecting static files for production..."
-    python manage.py collectstatic --noinput --clear
-fi
- 
-echo "Starting application server..."
-exec "$@"
-```
+echo "Wiping old static files from volume..."
+gosu appuser find /app/staticfiles/ -mindepth 1 -delete
+
+echo "Compiling tailwind///"
+python manage.py tailwind build
+
+echo "Collecting static files for production..."
+gosu appuser python manage.py collectstatic --noinput --clear
+
+echo "Starting application server as user: $(whoami)..."
+exec gosu appuser "$@"

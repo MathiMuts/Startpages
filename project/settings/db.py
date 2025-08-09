@@ -13,6 +13,7 @@ REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 
 if RUNNING_IN_DOCKER:
+    # Postgress
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
@@ -24,6 +25,7 @@ if RUNNING_IN_DOCKER:
         }
     }
 else:
+    # SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -34,7 +36,6 @@ else:
 # INFO: Cache
 if RUNNING_IN_DOCKER:
     # Redis cache
-    print("INFO: Docker environment detected. Configuring Redis cache.")
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -46,7 +47,6 @@ if RUNNING_IN_DOCKER:
     }
 else:
     # RAM cache
-    print("INFO: Local terminal environment detected. Configuring in-memory cache.")
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

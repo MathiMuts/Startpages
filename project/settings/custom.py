@@ -1,6 +1,7 @@
 # project/settings/custom.py
 
 import os
+import sys
 from .base import DEBUG, BASE_DIR
 
 INSTALLED_APPS = [
@@ -11,9 +12,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',
+    'tailwind',
+    'theme',
 
-    'example_app'
+    'example_app',
 ]
+
+TAILWIND_APP_NAME = 'theme'
+
+# Only for windows make sure npm can be found by python
+if sys.platform == "win32":
+    NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

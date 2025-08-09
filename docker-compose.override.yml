@@ -2,16 +2,12 @@
 
 services:
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:${APP_PORT}
-    volumes:
-      - ./:/app
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "${APP_PORT}:8000"
     environment:
-      - DEBUG=1
+      - DEBUG=True
       - DJANGO_ENV=development
-
-  nginx:
-    ports: []
-    command: ["nginx", "-g", "daemon off;"]
+    volumes:
+      - ./:/app
+      - ./theme/static:/app/theme/static

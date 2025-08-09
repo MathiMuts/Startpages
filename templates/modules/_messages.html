@@ -1,0 +1,50 @@
+{% load static %}
+{% if messages %}
+  <div id="messages-container" class="absolute top-20 w-full z-50">
+    <div class="container mt-3 mx-auto space-y-3">
+      {% for message in messages %}
+        {# Map message tags to Tailwind CSS classes #} 
+        {% with tag_classes=message.tags %}
+
+
+          <div class="relative flex items-start p-4 text-sm rounded-lg shadow-lg cursor-pointer
+            {% if 'error' in tag_classes %}
+              bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-1 border-red-300 dark:border-red-600/50
+            {% elif 'success' in tag_classes %}
+              bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-1 border-green-300 dark:border-green-600/50
+            {% elif 'warning' in tag_classes %}
+              bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-1 border-yellow-300 dark:border-yellow-600/50
+            {% else %}
+              bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-1 border-blue-300 dark:border-blue-600/50
+            {% endif %}"
+            role="alert"
+            onclick="this.remove()">
+
+            <!-- Icon for the message type -->
+            <div class="flex-shrink-0 mx-2">
+              {% if 'error' in tag_classes %}
+                <img class="h-8" src="{% static "img/error.svg" %}" />
+              {% elif 'success' in tag_classes %}
+                <img class="h-8" src="{% static "img/success.svg" %}" />
+              {% elif 'warning' in tag_classes %}
+                <img class="h-8" src="{% static "img/warning.svg" %}" />
+              {% else %}
+                <img class="h-8" src="{% static "img/info.svg" %}" />
+              {% endif %}
+            </div>
+
+            <!-- Message Text -->
+            <div class="ml-3 my-auto">
+              <span class="font-bold text-xl">
+                {{ message.tags|title }}:
+              </span>
+              <span class="text-lg">
+              {{ message }}
+              </span>
+            </div>
+          </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

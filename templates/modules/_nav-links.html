@@ -1,0 +1,23 @@
+{% with current_url_name=request.resolver_match.url_name %}
+    <!-- Home Link -->
+    <a href="{% url "example_app:index" %}"
+    class="rounded-md px-3 py-2 text-sm font-medium 
+            {% if current_url_name == 'index' %}bg-primary-800 dark:bg-primary-700 text-white{% else %}text-primary-100 hover:bg-primary-600 hover:text-white{% endif %}"
+    {% if current_url_name == 'index' %}aria-current="page"{% endif %}>
+    Index
+    </a>
+
+    <a href="#"
+    class="rounded-md px-3 py-2 text-sm font-medium 
+            {% if current_url_name == '#' %}bg-primary-800 dark:bg-primary-700 text-white{% else %}text-primary-100 hover:bg-primary-600 hover:text-white{% endif %}"
+    {% if current_url_name == '#' %}aria-current="page"{% endif %}>
+    #
+    </a>
+
+    <a href="#"
+    class="rounded-md px-3 py-2 text-sm font-medium 
+            {% if current_url_name == '#' %}bg-primary-800 dark:bg-primary-700 text-white{% else %}text-primary-100 hover:bg-primary-600 hover:text-white{% endif %}"
+    {% if current_url_name == '#' %}aria-current="page"{% endif %}>
+    #
+    </a>
+{% endwith %}
