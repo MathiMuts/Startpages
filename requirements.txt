@@ -1,0 +1,23 @@
+# requirements.txt
+
+# Core Framework
+django==5.2.3
+
+# Web Server & Static Files & Configuration
+python-dotenv==1.1.0
+gunicorn==23.0.0
+
+# Database
+psycopg2-binary==2.9.10
+
+# Caching
+django-redis==5.4.0
+redis~=5.0
+
+# Dev only:
+django-browser-reload==1.18.0
+
+# Prod only:
+whitenoise==6.9.0
+
+# Other imports
