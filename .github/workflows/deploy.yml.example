@@ -1,0 +1,55 @@
+# .github/workflows/deploy.yml
+
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add Server to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # Exit immediately if a command exits with a non-zero status.
+            set -e
+
+            # Navigate to the project directory
+            cd ${{ secrets.PROJECT_PATH }}
+            
+            # Pull the latest changes from the git repository
+            echo ">> Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # --- PERMISSIONS SECTION ---
+            echo ">> Setting correct file permissions..."
+            sudo chown -R www-data:www-data .
+            sudo find . -type d -exec chmod 775 {} \;
+            sudo find . -type f -exec chmod 664 {} \;
+            sudo chmod +x manage.py
+            sudo chmod +x *.sh
+            
+            # Rebuild and restart the services
+            echo ">> Rebuilding and deploying containers..."
+            docker compose -f docker-compose.yml down
+            docker compose -f docker-compose.yml build --no-cache
+            docker compose -f docker-compose.yml up -d --remove-orphans
+            
+            # Prune old images to save disk space
+            echo ">> Pruning old Docker images..."
+            docker image prune -f
