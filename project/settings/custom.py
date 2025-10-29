@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     'theme',
 
     'example_app',
+    'startpages',
 ]
 
 TAILWIND_APP_NAME = 'theme'
