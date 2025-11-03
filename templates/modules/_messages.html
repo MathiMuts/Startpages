@@ -1,6 +1,6 @@
 {% load static %}
 {% if messages %}
-  <div id="messages-container" class="absolute top-20 w-full z-50">
+  <div id="messages-container" class="absolute top-10 w-full px-10 z-1001">
     <div class="container mt-3 mx-auto space-y-3">
       {% for message in messages %}
         {# Map message tags to Tailwind CSS classes #} 
@@ -34,11 +34,11 @@
             </div>
 
             <!-- Message Text -->
-            <div class="ml-3 my-auto">
+            <div class="ml-3 my-auto flex flex-row">
               <span class="font-bold text-xl">
                 {{ message.tags|title }}:
               </span>
-              <span class="text-lg">
+              <span class="text-lg flex-grow">
               {{ message }}
               </span>
             </div>

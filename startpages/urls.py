@@ -7,4 +7,5 @@ app_name = 'startpages'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('testpage', views.testpage, name='testpage'),
 ]

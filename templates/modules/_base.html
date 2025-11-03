@@ -23,9 +23,9 @@
         </script>
     </head>
 
-  <body class="bg-white dark:bg-gray-900 min-h-screen flex flex-col">
+  <body class="bg-neutral-100 dark:bg-neutral-900 min-h-screen flex flex-col">
     <header class="sticky top-0 z-50">
-        {% include "./_nav.html" %}
+        {% comment %} {% include "./_nav.html" %} {% endcomment %}
         {% include "./_messages.html" %}
     </header>
     
@@ -34,8 +34,8 @@
       {% block content %}{% endblock content %}
     </main>
 
-    <footer class=" bottom-0 z-50 bg-gray-50 dark:bg-gray-800">
+    {% comment %} <footer class=" bottom-0 z-50 bg-gray-50 dark:bg-gray-800">
       {% include "./_footer.html" %}
-    </footer>
+    </footer> {% endcomment %}
   </body>
 </html>
