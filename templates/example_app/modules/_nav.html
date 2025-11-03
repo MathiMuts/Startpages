@@ -1,0 +1,112 @@
+{% load static %}
+<nav class="bg-primary-700 dark:bg-primary-800 shadow-md **:ring-offset-primary-800 **:ring-white">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <div class="relative flex h-16 items-center justify-between">
+      <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+        <!-- Mobile menu button-->
+        <button
+          id="mobile-menu-button"
+          type="button"
+          class="relative inline-flex items-center justify-center rounded-md p-2 text-primary-200 hover:bg-primary-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Open main menu</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="size-6 menu-open">
+            <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="size-6 menu-close hidden">
+            <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Links -->
+      <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+        <div class="hidden sm:ml-6 sm:block">
+          <div class="flex space-x-4">
+            {% include "./_nav-links.html" %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side -->
+      <div class=" h-8 sm:mr-6 inset-y-0 right-0 items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-4 flex">
+        <button
+          id="dark-mode-toggle"
+          type="button"
+          class="relative rounded-full p-1 text-primary-100 hover:text-white hover:*:scale-110 cursor-pointer hidden sm:flex"
+        >
+          <span class="sr-only">Toggle dark mode</span>
+          <div class="h-6 w-6 block dark:hidden">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z"/>
+            </svg>
+          </div>
+          <div class="h-6 w-6 hidden dark:block">
+            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3V4M12 20V21M4 12H3M6.31412 6.31412L5.5 5.5M17.6859 6.31412L18.5 5.5M6.31412 17.69L5.5 18.5001M17.6859 17.69L18.5 18.5001M21 12H20M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </button>
+
+      
+        <a href="#"
+          class="flex items-center text-sm font-medium border-2 border-white rounded-full h-12 ring-white hover:ring-2 ring-offset-2
+                  {% if current_url_name == '#' %}ring-2 ring-offset-2{% else %}{% endif %}"
+          {% if current_url_name == '#' %}aria-current="page"{% endif %}>
+
+          <!-- Profile Image -->
+          <img class="h-full aspect-1/1 rounded-full object-cover" 
+              src="https://picsum.photos/600/600" 
+              alt="Your profile picture">
+        </a>
+
+    
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="sm:hidden hidden">
+    <div class="space-y-1 px-2 pt-2 pb-3 flex flex-col absolute left-0 right-0 bg-primary-700 dark:bg-primary-800 w-full">
+      {% include "./_nav-links.html" %}
+    </div>
+  </div>
+</nav>
+
+<script>
+  const button = document.getElementById("mobile-menu-button");
+  const menu = document.getElementById("mobile-menu");
+  const darkmode = document.getElementById("dark-mode-toggle");
+  const iconOpen = button.querySelector(".menu-open");
+  const iconClose = button.querySelector(".menu-close");
+
+  button.addEventListener("click", () => {
+    const isHidden = menu.classList.toggle("hidden");
+    button.setAttribute("aria-expanded", String(!isHidden));
+    iconOpen.classList.toggle("hidden");
+    iconClose.classList.toggle("hidden");
+    darkmode.classList.toggle("hidden");
+  });
+</script>
+
+      
+<script>
+  (() => {
+    const toggleBtn = document.getElementById("dark-mode-toggle");
+    const htmlEl = document.documentElement;
+
+    if (!toggleBtn) return;
+
+    toggleBtn.addEventListener("click", () => {
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        try { localStorage.setItem('theme', 'light'); } catch (e) {}
+      } else {
+        htmlEl.classList.add('dark');
+        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+      }
+    });
+  })();
+</script>
+
+    

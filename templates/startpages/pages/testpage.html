@@ -1,0 +1,42 @@
+{% extends "../../modules/_base.html" %}
+
+{% block title %}Testpage{% endblock title %}
+{% block content %}
+
+<section id="section-1" class="py-16 sm:py-24 mt-10">
+  <div class="container mx-auto px-6 flex flex-col gap-4">
+    <h1 class="dark:text-neutral-300 text-5xl">Testbuttons</h1>
+    <div class="flex flex-wrap gap-4 ">
+      <form method="POST" class="space-x-4">
+        {% csrf_token %}
+        <button type="submit" name="message_type" value="info" class="button-info">
+          button-info
+        </button>
+        <button type="submit" name="message_type" value="success" class="button-success">
+          button-success
+        </button>
+        <button type="submit" name="message_type" value="warning" class="button-warn">
+          button-warn
+        </button>
+        <button type="submit" name="message_type" value="error" class="button-error">
+          button-error
+        </button>
+      </form>
+    </div>
+    
+    {% include "../../components/_darkmode-button.html" %}
+  </div>
+</section>
+
+<section id="section-2" class="bg-white dark:bg-neutral-900 py-16 sm:py-24">
+  <div class="container mx-auto px-6">
+    Section 2 electric boogaloo
+  </div>
+</section>
+
+<section id="section-3" class="py-16 sm:py-24">
+  <div class="container mx-auto px-6">
+    Section 3
+  </div>
+</section>
+{% endblock %}
