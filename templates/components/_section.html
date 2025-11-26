@@ -4,7 +4,7 @@
            container px-6 py-4 flex flex-col gap-4 rounded-lg
            text-neutral-900 dark:text-neutral-200 w-full relative group
            transition-transform duration-200 select-none
-           shadow-lg h-[29.5rem]
+           shadow-lg h-[30rem]
            border border-transparent"
     {% if not is_preview %}data-id="{{ section.id }}"{% endif %}
 >
@@ -36,13 +36,17 @@
     <div class="flex flex-col gap-2 flex-grow overflow-hidden">
         
         <!-- Links Sortable Container -->
-        <div class="flex flex-col gap-2 min-h-[10px] section-links" {% if not is_preview %}data-section-id="{{ section.id }}"{% endif %}>
+        <!-- Added flex-grow so this container consumes all empty space, making the drop target larger -->
+        <!-- Added overflow-y-auto so links scroll inside the card if they exceed height -->
+        <div class="flex flex-col gap-2 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible" 
+             {% if not is_preview %}data-section-id="{{ section.id }}"{% endif %}>
+            
             {% for link in section.links.all %}
                 <div class="{% if not is_preview %}draggable-link{% endif %} 
-                            relative px-3 py-0.75 rounded 
+                            relative px-3 py-0.5 rounded 
                             hover:bg-neutral-100 dark:hover:bg-neutral-600 group-hover:bg-opacity-50
                             transition-colors duration-150
-                            border border-transparent"
+                            border-2 border-transparent"
                      {% if not is_preview %}data-id="{{ link.id }}"{% endif %}>
                      
                     <!-- Normal Link Behavior -->
@@ -62,16 +66,17 @@
         </div>
 
         <!-- Add Link Button (Edit Mode Only, Max 10) -->
+        <!-- Because section-links above has flex-grow, this button will sit at the bottom of the card -->
         {% if not is_preview %}
-        <div class="" id="add-btn-container-{{ section.id }}">
+        <div class="mt-auto" id="add-btn-container-{{ section.id }}">
             <button onclick="openAddLinkModal('{{ section.id }}')"
-                    class="static-add-btn w-full py-1 hidden edit-mode-visible 
+                    class="static-add-btn w-full py-0.75 hidden edit-mode-visible cursor-pointer
                            border-2 border-dotted border-neutral-400 dark:border-neutral-500 rounded
                            text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600/50
                            justify-center items-center transition-all"
                     title="Add Link"
                     {% if section.links.count >= 10 %}style="display:none !important"{% endif %}>
-                 <span class="text-lg font-bold leading-normal">+</span>
+                 <span class="text-md font-bold leading-normal">+</span>
             </button>
         </div>
         {% endif %}

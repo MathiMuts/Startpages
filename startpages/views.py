@@ -72,9 +72,19 @@ def update_link_order(request):
     section_id = data.get('section_id')
     link_ids = data.get('link_ids', [])
     
+    # 1. Validation: Max 10 links per section
+    if len(link_ids) > 10:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Section cannot contain more than 10 links.'
+        }, status=400)
+    
     target_section = get_object_or_404(Section, id=section_id, page__user=request.user)
     
+    # 2. Update logic
     for index, link_id in enumerate(link_ids):
+        # We ensure the link belongs to the user via section__page__user
+        # This moves the link to the new section AND updates the order
         Link.objects.filter(id=link_id, section__page__user=request.user).update(
             order=index, 
             section=target_section

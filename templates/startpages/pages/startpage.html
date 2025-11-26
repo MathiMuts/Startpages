@@ -80,7 +80,6 @@
     /* Edit Mode Visual Cues */
     
     /* Section Border */
-    /* Border width is reserved in HTML (border-transparent), so we just change color/style */
     .edit-mode-active .draggable-section {
         border-color: #6366f1; /* Indigo-500 */
         border-style: dashed;
@@ -89,7 +88,6 @@
     }
 
     /* Link Borders */
-    /* Border width is reserved in HTML (border-transparent), so we just change color */
     .edit-mode-active .draggable-link {
         border-color: #d4d4d4; /* neutral-300 */
     }
@@ -103,7 +101,7 @@
     }
 
     .edit-mode-active .edit-mode-visible {
-        display: block !important;
+        display: flex !important; /* Changed to flex to center content in button */
     }
 
     /* Drag Overlay */
@@ -123,7 +121,7 @@
         display: none !important;
     }
 
-    /* Sortable Ghost (Drag placeholder) - Dotted line style */
+    /* Sortable Ghost (The item being dragged) */
     .sortable-ghost {
         opacity: 0.5;
         background-color: transparent;

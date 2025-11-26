@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize logic to mark full sections immediately on load
+    document.querySelectorAll('.section-links').forEach(container => {
+        checkLinkLimit(container);
+    });
+
     initSortables();
     initInteractionListeners();
     initModalLogic();
@@ -53,6 +58,19 @@ function initSortables() {
             fallbackOnBody: true,
             swapThreshold: 0.65,
             ghostClass: 'sortable-ghost',
+            
+            // --- BLOCK DROPPING IF FULL ---
+            onMove: function (evt) {
+                if (evt.from === evt.to) return true;
+
+                // If target list is marked as full, block entry
+                if (evt.to.classList.contains('section-full')) {
+                    return false; 
+                }
+                
+                return true;
+            },
+
             // Track Dragging State for CSS
             onStart: function() {
                 document.body.classList.add('dragging-active');
@@ -63,7 +81,7 @@ function initSortables() {
                 const targetList = evt.to; 
                 const sectionId = targetList.getAttribute('data-section-id');
                 
-                // Update "Add Button" visibility based on new counts
+                // Update State (Button visibility + Full Class)
                 checkLinkLimit(evt.from);
                 if (evt.from !== evt.to) {
                     checkLinkLimit(evt.to);
@@ -76,19 +94,23 @@ function initSortables() {
     });
 }
 
+// Logic to check limits and update UI classes
 function checkLinkLimit(container) {
     if (!container) return;
     const sectionId = container.getAttribute('data-section-id');
     const count = container.querySelectorAll('.draggable-link').length;
-    const btn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
     
-    if (btn) {
-        // If 10 or more, hide button. Else show it (if edit mode is active, CSS handles that)
-        if (count >= 10) {
-            btn.style.setProperty('display', 'none', 'important');
-        } else {
-            btn.style.removeProperty('display');
-        }
+    const addBtn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
+    
+    // 1. Handle visibility limit (Max 10)
+    // If full, hide EVERYTHING (button) regardless of drag state
+    if (count >= 10) {
+        if (addBtn) addBtn.style.setProperty('display', 'none', 'important');
+        container.classList.add('section-full');
+    } else {
+        // If not full, remove inline styles so CSS classes (dragging-active) can take over
+        if (addBtn) addBtn.style.removeProperty('display');
+        container.classList.remove('section-full');
     }
 }
 
@@ -223,6 +245,11 @@ function saveLinkOrder(sectionId, container) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify({ section_id: sectionId, link_ids: ids })
+    })
+    .then(res => {
+        if (!res.ok) {
+            res.json().then(data => showToast(data.message, 'error'));
+        }
     });
 }
 
@@ -340,8 +367,8 @@ function appendNewLink(sectionId, linkData) {
     if (!container) return;
 
     const div = document.createElement('div');
-    // Match the classes from _section.html (ensure consistent gap/visuals)
-    div.className = "draggable-link relative px-3 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 group-hover:bg-opacity-50 transition-colors duration-150";
+    // Match the classes from _section.html (ensure consistent gap/visuals + border-transparent)
+    div.className = "draggable-link relative px-3 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 group-hover:bg-opacity-50 transition-colors duration-150 border border-transparent";
     div.setAttribute('data-id', linkData.id);
     
     div.innerHTML = `
