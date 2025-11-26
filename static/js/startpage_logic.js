@@ -52,14 +52,44 @@ function initSortables() {
             disabled: true, 
             fallbackOnBody: true,
             swapThreshold: 0.65,
+            ghostClass: 'sortable-ghost',
+            // Track Dragging State for CSS
+            onStart: function() {
+                document.body.classList.add('dragging-active');
+            },
             onEnd: function (evt) {
+                document.body.classList.remove('dragging-active');
+                
                 const targetList = evt.to; 
                 const sectionId = targetList.getAttribute('data-section-id');
+                
+                // Update "Add Button" visibility based on new counts
+                checkLinkLimit(evt.from);
+                if (evt.from !== evt.to) {
+                    checkLinkLimit(evt.to);
+                }
+
                 saveLinkOrder(sectionId, targetList);
             }
         });
         linkSortables.push(sortable);
     });
+}
+
+function checkLinkLimit(container) {
+    if (!container) return;
+    const sectionId = container.getAttribute('data-section-id');
+    const count = container.querySelectorAll('.draggable-link').length;
+    const btn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
+    
+    if (btn) {
+        // If 10 or more, hide button. Else show it (if edit mode is active, CSS handles that)
+        if (count >= 10) {
+            btn.style.setProperty('display', 'none', 'important');
+        } else {
+            btn.style.removeProperty('display');
+        }
+    }
 }
 
 // --- 3. Interaction Logic ---
@@ -89,6 +119,11 @@ function initInteractionListeners() {
             return;
         }
 
+        // Add Button Click (Handled via onclick attribute, but ensure propagation stops if needed)
+        if (e.target.closest('.static-add-btn')) {
+            return;
+        }
+
         if (!isEditMode) return;
 
         // 2. Logic: If click duration > 200ms, it was a drag, NOT a click. Do not open modal.
@@ -105,7 +140,6 @@ function initInteractionListeners() {
         const isModalCard = e.target.closest('#edit-modal-card'); 
 
         // CRITICAL: If we are interacting with the modal card, DO NOTHING.
-        // Let the browser handle focus/input.
         if (isModalCard) {
             return;
         }
@@ -126,7 +160,6 @@ function initInteractionListeners() {
         } 
 
         // CASE C: Exit Edit Mode if background clicked
-        // Only if we are NOT clicking the modal wrapper (which handles its own closing via onclick)
         if (!isModal) {
             toggleEditMode(false);
         }
@@ -155,7 +188,7 @@ function toggleEditMode(enable) {
 
     if (enable) {
         body.classList.add('edit-mode-active');
-        if(modeIndicator) modeIndicator.innerText = "Edit Mode Active (Drag to move, Click to edit, Click bg to exit)";
+        if(modeIndicator) modeIndicator.innerText = "Edit Mode Active";
         
         if (sectionSortable) sectionSortable.option("disabled", false);
         linkSortables.forEach(s => s.option("disabled", false));
@@ -198,15 +231,25 @@ function saveLinkOrder(sectionId, container) {
 const modal = document.getElementById('edit-modal');
 const form = document.getElementById('edit-form');
 const urlGroup = document.getElementById('url-field-group');
+const modalTitle = document.getElementById('modal-title');
 
 function initModalLogic() {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        saveItemDetails();
+        
+        const type = document.getElementById('edit-type').value;
+        if (type === 'new_link') {
+            saveNewLink();
+        } else {
+            saveItemDetails();
+        }
     });
 }
 
+// Open modal for editing existing items
 function openEditModal(type, id) {
+    modalTitle.innerText = type === 'section' ? 'Edit Section' : 'Edit Link';
+    
     fetch(`/api/get-item-details/?type=${type}&id=${id}`)
         .then(response => response.json())
         .then(data => {
@@ -226,10 +269,26 @@ function openEditModal(type, id) {
         .catch(err => console.error(err));
 }
 
+// Open modal for adding a new link
+window.openAddLinkModal = function(sectionId) {
+    modalTitle.innerText = 'Add New Link';
+    document.getElementById('edit-id').value = sectionId; // Store section ID here for reference
+    document.getElementById('edit-type').value = 'new_link';
+    
+    document.getElementById('edit-name').value = '';
+    document.getElementById('edit-url').value = '';
+    urlGroup.style.display = 'block';
+    
+    modal.classList.remove('hidden');
+    // Ensure edit mode stays active visually just in case
+    toggleEditMode(true);
+}
+
 function closeEditModal() {
     modal.classList.add('hidden');
 }
 
+// Save existing item (Edit)
 function saveItemDetails() {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -252,7 +311,53 @@ function saveItemDetails() {
     .catch(() => showToast('Network error', 'error'));
 }
 
-// Update DOM without reload
+// Create new link (Add)
+function saveNewLink() {
+    const sectionId = document.getElementById('edit-id').value;
+    const name = document.getElementById('edit-name').value;
+    const url = document.getElementById('edit-url').value;
+
+    fetch('/api/add-link/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ section_id: sectionId, name: name, url: url })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.status === 'success') {
+            closeEditModal();
+            appendNewLink(sectionId, response.link);
+            showToast('Link added successfully!');
+        } else {
+            showToast(response.message || 'Error adding link', 'error');
+        }
+    })
+    .catch(() => showToast('Network error', 'error'));
+}
+
+function appendNewLink(sectionId, linkData) {
+    const container = document.querySelector(`.section-links[data-section-id="${sectionId}"]`);
+    if (!container) return;
+
+    const div = document.createElement('div');
+    // Match the classes from _section.html (ensure consistent gap/visuals)
+    div.className = "draggable-link relative px-3 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 group-hover:bg-opacity-50 transition-colors duration-150";
+    div.setAttribute('data-id', linkData.id);
+    
+    div.innerHTML = `
+        <a href="${linkData.url}" target="_blank"
+           class="edit-mode-disable block text-neutral-700 dark:text-neutral-400 hover:underline truncate"
+           data-edit-target="name">
+           ${linkData.name}
+        </a>
+        <div class="absolute inset-0 hidden edit-mode-overlay cursor-grab active:cursor-grabbing z-10"></div>
+    `;
+
+    container.appendChild(div);
+    checkLinkLimit(container);
+}
+
+// Update DOM without reload (Edit)
 function updateUiItem(data) {
     if (data.type === 'section') {
         const section = document.querySelector(`.draggable-section[data-id="${data.id}"]`);

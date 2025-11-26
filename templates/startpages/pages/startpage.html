@@ -76,4 +76,68 @@
   }
 </script>
 
+<style>
+    /* Edit Mode Visual Cues */
+    
+    /* Section Border */
+    /* Border width is reserved in HTML (border-transparent), so we just change color/style */
+    .edit-mode-active .draggable-section {
+        border-color: #6366f1; /* Indigo-500 */
+        border-style: dashed;
+        cursor: grab;
+        animation: pulse-border 2s infinite;
+    }
+
+    /* Link Borders */
+    /* Border width is reserved in HTML (border-transparent), so we just change color */
+    .edit-mode-active .draggable-link {
+        border-color: #d4d4d4; /* neutral-300 */
+    }
+    .dark .edit-mode-active .draggable-link {
+        border-color: #525252; /* neutral-600 */
+    }
+
+    /* Toggle Visibility Helpers */
+    .edit-mode-active .edit-mode-hidden {
+        display: none !important;
+    }
+
+    .edit-mode-active .edit-mode-visible {
+        display: block !important;
+    }
+
+    /* Drag Overlay */
+    .edit-mode-active .edit-mode-overlay {
+        display: block !important;
+    }
+
+    /* Disable links while editing */
+    .edit-mode-active .edit-mode-disable {
+        pointer-events: none;
+    }
+
+    /* --- DRAGGING SPECIFICS --- */
+
+    /* Hide the static '+' button when any drag operation is active */
+    body.dragging-active .static-add-btn {
+        display: none !important;
+    }
+
+    /* Sortable Ghost (Drag placeholder) - Dotted line style */
+    .sortable-ghost {
+        opacity: 0.5;
+        background-color: transparent;
+        border: 2px dotted #a3a3a3 !important; /* neutral-400 */
+    }
+    .dark .sortable-ghost {
+        border-color: #737373 !important; /* neutral-500 */
+    }
+
+    @keyframes pulse-border {
+        0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+</style>
+
 {% endblock %}
