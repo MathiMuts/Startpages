@@ -1,33 +1,108 @@
 {% extends "../../modules/_base.html" %}
+{% load static %}
 
 {% block title %}Startpage{% endblock title %}
 {% block content %}
 
-<div class="mt-58 mb-24">
-  {% include "../../components/_search-bar.html" %}
+<!-- Scroll Snap Container -->
+<div class="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="main-scroll-container">
+
+    <!-- Screen 1: Search & Preview Row (Snap Center) -->
+    <!-- Changed h-screen to min-h-screen to accommodate tall cards without clipping -->
+    <div class="snap-start min-h-screen flex flex-col justify-center items-center w-full relative bg-neutral-50 dark:bg-neutral-900/50 py-12">
+        
+        <!-- Search Bar Container -->
+        <div class="w-full max-w-2xl px-4 z-10 mb-12 pt-60 pb-40">
+            {% include "../../components/_search-bar.html" %}
+        </div>
+
+        <!-- Preview Row (First row of sections) -->
+        <!-- Removed max-height restriction so full cards are visible -->
+        <div class="w-full px-4 mb-8"> 
+             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
+                        w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392
+                        gap-8 mx-auto p-4">
+                
+                <!-- Take only the first 5 sections for the preview -->
+                {% for sec in sections|slice:":5" %}
+                    <!-- Pass is_preview=True to disable editing/dragging on this row -->
+                    {% include "../../components/_section.html" with section=sec is_preview=True %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="text-center text-neutral-400 animate-bounce cursor-pointer mt-auto" 
+             onclick="document.getElementById('sections-grid').scrollIntoView({behavior: 'smooth'})">
+            <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </div>
+
+    <!-- Screen 2: All Sections Grid (Snap Start) -->
+    <div id="sections-grid" class="snap-start min-h-screen pt-24 pb-24 bg-neutral-100 dark:bg-neutral-900">
+        
+        <div class="text-center mb-8 text-neutral-500 text-sm">
+            <span id="mode-indicator">Hold any item to Edit</span>
+        </div>
+
+        <div id="grid-container" 
+             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
+                    w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392
+                    gap-8 mx-auto pb-32">
+            
+            {% for sec in sections %}
+                <!-- Normal Include (Editable) -->
+                {% include "../../components/_section.html" with section=sec %}
+            {% endfor %}
+            
+        </div>
+    </div>
+
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
-                 w-72        sm:w-152       md:w-232       lg:w-312       xl:w-392
-            gap-8 mx-auto">
-            
-  {% for sec in sections %}
-    {% include "../../components/_section.html" with section=sec %}
-  {% endfor %}
+<!-- EDIT MODAL -->
+<div id="edit-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-neutral-900 bg-opacity-75 transition-opacity backdrop-blur-sm"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-neutral-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg p-6">
+                
+                <h3 class="text-lg font-semibold leading-6 text-neutral-900 dark:text-white mb-4" id="modal-title">Edit Item</h3>
+                
+                <form id="edit-form" class="flex flex-col gap-4">
+                    <input type="hidden" id="edit-id" name="id">
+                    <input type="hidden" id="edit-type" name="type">
+
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</label>
+                        <input type="text" id="edit-name" name="name" class="mt-1 block w-full rounded-md border-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                    </div>
+
+                    <div id="url-field-group">
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">URL</label>
+                        <input type="url" id="edit-url" name="url" class="mt-1 block w-full rounded-md border-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                    </div>
+
+                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                        <button type="submit" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2">Save</button>
+                        <button type="button" onclick="closeEditModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-neutral-700 px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-200 shadow-sm ring-1 ring-inset ring-neutral-300 dark:ring-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-600 sm:col-start-1 sm:mt-0">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="{% static 'js/startpage_logic.js' %}"></script>
 
 <script>
   function openAllLinksInSection(triggerElement) {
     const section = triggerElement.closest('section');
-    
     if (section) {
-      const linksToOpen = section.querySelectorAll('div a');
-      
+      const linksToOpen = section.querySelectorAll('.section-links a');
       linksToOpen.forEach(link => {
-        const url = link.href;
-        if (url) {
-          window.open(url, '_blank');
-        }
+        if (link.href) window.open(link.href, '_blank');
       });
     }
   }
