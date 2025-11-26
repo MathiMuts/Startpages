@@ -1,59 +1,36 @@
 # startpages/views.py
 
-from django.shortcuts import render, redirect
-from django.contrib import messages 
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import StartPage, Section, Link
 
-def index(request):
-    sections = []
-    sections.append({'name': 'section1', 'links': [
-        {'name': 'link1', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link2', 'color': '#000fff', 'link': '#'},
-        {'name': 'link3', 'color': '#000000', 'link': '#'},
-        {'name': 'link4', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link5', 'color': '#000fff', 'link': '#'},
-        {'name': 'link6', 'color': '#00ff00', 'link': '#'},
-        {'name': 'link7', 'color': '#000000', 'link': '#'},
-        {'name': 'link8', 'color': '#000fff', 'link': '#'},
-        ]})
-    sections.append({'name': 'section2', 'links': [
-        {'name': 'link1', 'color': '#000fff', 'link': '#'},
-        {'name': 'link2', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link3', 'color': '#000000', 'link': '#'},
-        {'name': 'link4', 'color': '#000fff', 'link': '#'},
-        {'name': 'link5', 'color': "#00ff00", 'link': '#'},
-        {'name': 'link6', 'color': '#000000', 'link': '#'},
-        {'name': 'link7', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link8', 'color': '#000000', 'link': '#'},
-        ]})
-    sections.append({'name': 'section3', 'links': [
-        {'name': 'link1', 'color': '#000fff', 'link': '#'},
-        {'name': 'link2', 'color': "#00ff00", 'link': '#'},
-        {'name': 'link3', 'color': '#000000', 'link': '#'},
-        {'name': 'link4', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link5', 'color': '#000000', 'link': '#'},
-        ]})
-    sections.append({'name': 'section4', 'links': [
-        {'name': 'link1', 'color': '#000fff', 'link': '#'},
-        {'name': 'link2', 'color': "#00ff00", 'link': '#'},
-        {'name': 'link3', 'color': '#000000', 'link': '#'},
-        {'name': 'link4', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link5', 'color': '#000000', 'link': '#'},
-        ]})
-    sections.append({'name': 'section5', 'links': [
-        {'name': 'link1', 'color': '#000fff', 'link': '#'},
-        {'name': 'link2', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link3', 'color': '#000000', 'link': '#'},
-        {'name': 'link4', 'color': '#000fff', 'link': '#'},
-        {'name': 'link5', 'color': "#00ff00", 'link': '#'},
-        {'name': 'link6', 'color': '#000000', 'link': '#'},
-        {'name': 'link7', 'color': '#ff0000', 'link': '#'},
-        {'name': 'link8', 'color': '#000000', 'link': '#'},
-        ]})
-    
-    for _ in range(0): sections.append(sections[0])
-    
 
-    return render(request, 'startpages/pages/startpage.html', {'grid_cols': 3, 'sections': sections})
+def index(request, username=None, slug=None):
+    page = None
+
+    if username and slug and request.user.is_authenticated:
+        if request.user.username.lower() == username.lower():
+            page = get_object_or_404(StartPage, user__username__iexact=username, slug=slug)
+
+    elif request.user.is_authenticated:
+        page = StartPage.objects.filter(user=request.user).first()
+    
+    if not page:
+        return render(request, 'startpages/pages/404_no_startpage.html')
+
+    sections = page.sections.prefetch_related('links').all()
+
+    context = {
+        'page': page,
+        'sections': sections,
+    }
+
+    return render(request, 'startpages/pages/startpage.html', context)
+
 
 def testpage(request):
     if request.method == 'POST':
@@ -72,3 +49,75 @@ def testpage(request):
         return redirect('startpages:testpage')
 
     return render(request, 'startpages/pages/testpage.html')
+
+# INFO: --- API Views ---
+
+@login_required
+@require_POST
+def update_section_order(request):
+    """Expects JSON: { 'ids': [1, 5, 2] }"""
+    data = json.loads(request.body)
+    section_ids = data.get('ids', [])
+    
+    for index, sec_id in enumerate(section_ids):
+        # Verify ownership to prevent editing other people's sections
+        Section.objects.filter(id=sec_id, page__user=request.user).update(order=index)
+        
+    return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def update_link_order(request):
+    """Expects JSON: { 'section_id': 1, 'link_ids': [10, 12, 11] }"""
+    data = json.loads(request.body)
+    section_id = data.get('section_id')
+    link_ids = data.get('link_ids', [])
+    
+    # Ensure target section belongs to user
+    target_section = get_object_or_404(Section, id=section_id, page__user=request.user)
+    
+    for index, link_id in enumerate(link_ids):
+        # Update order AND parent section (in case it was dragged to a new section)
+        Link.objects.filter(id=link_id, section__page__user=request.user).update(
+            order=index, 
+            section=target_section
+        )
+        
+    return JsonResponse({'status': 'success'})
+
+@login_required
+def get_item_details(request):
+    """GET request to fetch data for the modal"""
+    item_type = request.GET.get('type') # 'section' or 'link'
+    item_id = request.GET.get('id')
+    
+    data = {}
+    
+    if item_type == 'section':
+        item = get_object_or_404(Section, id=item_id, page__user=request.user)
+        data = {'id': item.id, 'name': item.name, 'type': 'section'}
+    elif item_type == 'link':
+        item = get_object_or_404(Link, id=item_id, section__page__user=request.user)
+        data = {'id': item.id, 'name': item.name, 'url': item.url, 'type': 'link'}
+        
+    return JsonResponse(data)
+
+@login_required
+@require_POST
+def save_item_details(request):
+    """Expects JSON to update name/url"""
+    data = json.loads(request.body)
+    item_type = data.get('type')
+    item_id = data.get('id')
+    
+    if item_type == 'section':
+        item = get_object_or_404(Section, id=item_id, page__user=request.user)
+        item.name = data.get('name')
+        item.save()
+    elif item_type == 'link':
+        item = get_object_or_404(Link, id=item_id, section__page__user=request.user)
+        item.name = data.get('name')
+        item.url = data.get('url')
+        item.save()
+        
+    return JsonResponse({'status': 'success'})
