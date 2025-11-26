@@ -1,253 +1,251 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let isEditMode = false;
-    let longPressTimer;
-    const longPressDuration = 800; // ms
-    const gridContainer = document.getElementById('grid-container');
-    const scrollContainer = document.getElementById('main-scroll-container');
+    initSortables();
+    initInteractionListeners();
+    initModalLogic();
+});
 
-    // --- 1. EDIT MODE TOGGLE ---
+let isEditMode = false;
+let sectionSortable = null;
+let linkSortables = [];
+let longPressTimer;
+let ignoreNextClick = false; // Flag to prevent modal opening immediately after long-press release
 
-    function toggleEditMode(enable) {
-        isEditMode = enable;
-        const body = document.body;
-        const modeIndicator = document.getElementById('mode-indicator');
-
-        if (enable) {
-            body.classList.add('edit-mode-active');
-            modeIndicator.textContent = "Edit Mode Active (Drag to reorder, Click to edit, Click background to exit)";
-            modeIndicator.classList.add('text-indigo-500', 'font-bold');
-            
-            // Enable Sortable instances
-            enableDragAndDrop();
-        } else {
-            body.classList.remove('edit-mode-active');
-            modeIndicator.textContent = "Hold any item to Edit";
-            modeIndicator.classList.remove('text-indigo-500', 'font-bold');
-            
-            // Disable/Destroy Sortable instances to restore normal interaction
-            disableDragAndDrop();
-        }
-    }
-
-    // Long Press Logic
-    const handleStart = (e) => {
-        if (isEditMode) return;
-        // Only trigger on left click or touch
-        if (e.type === 'mousedown' && e.button !== 0) return;
-
-        // Check if target is inside a section
-        if (e.target.closest('.draggable-section')) {
-            longPressTimer = setTimeout(() => {
-                toggleEditMode(true);
-                // Vibration feedback for mobile
-                if (navigator.vibrate) navigator.vibrate(50);
-            }, longPressDuration);
-        }
-    };
-
-    const handleEnd = () => {
-        clearTimeout(longPressTimer);
-    };
-
-    // Attach listeners to grid
-    gridContainer.addEventListener('mousedown', handleStart);
-    gridContainer.addEventListener('touchstart', handleStart);
-    gridContainer.addEventListener('mouseup', handleEnd);
-    gridContainer.addEventListener('mouseleave', handleEnd);
-    gridContainer.addEventListener('touchend', handleEnd);
-
-    // Click outside to exit (attached to the main scroll container)
-    scrollContainer.addEventListener('click', (e) => {
-        if (isEditMode) {
-            // If clicked on background (not a section or link or modal)
-            if (!e.target.closest('.draggable-section') && !e.target.closest('#edit-modal')) {
-                toggleEditMode(false);
+// --- 1. CSRF Token Helper ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-    });
+    }
+    return cookieValue;
+}
 
+const csrftoken = getCookie('csrftoken');
 
-    // --- 2. DRAG AND DROP (SortableJS) ---
+// --- 2. Sortable.js Initialization ---
+function initSortables() {
+    const gridContainer = document.getElementById('grid-container');
+    const linkContainers = document.querySelectorAll('.section-links');
 
-    let sectionSortable;
-    let linkSortables = [];
-
-    function enableDragAndDrop() {
-        // 1. Sort Sections
+    // Section Sorting
+    if (gridContainer) {
         sectionSortable = new Sortable(gridContainer, {
             animation: 150,
-            handle: '.section-header', // Drag by header
-            delay: 0, 
+            disabled: true, 
+            handle: '.section-header', 
             onEnd: function (evt) {
                 saveSectionOrder();
             }
         });
+    }
 
-        // 2. Sort Links (Nested)
-        const linkContainers = document.querySelectorAll('.section-links');
-        linkContainers.forEach(container => {
-            const sortable = new Sortable(container, {
-                group: 'shared-links', // Allow dragging between sections
-                animation: 150,
-                delay: 0,
-                onEnd: function (evt) {
-                    // We need the section ID where the item ended up
-                    const targetSection = evt.to; 
-                    saveLinkOrder(targetSection);
-                    
-                    // If moved to a different list, update origin list too just in case (though API handles by ID)
-                    if (evt.to !== evt.from) {
-                        saveLinkOrder(evt.from);
-                    }
-                }
-            });
-            linkSortables.push(sortable);
+    // Link Sorting
+    linkContainers.forEach(container => {
+        const sortable = new Sortable(container, {
+            group: 'links', 
+            animation: 150,
+            disabled: true, 
+            fallbackOnBody: true,
+            swapThreshold: 0.65,
+            onEnd: function (evt) {
+                const targetList = evt.to; 
+                const sectionId = targetList.getAttribute('data-section-id');
+                saveLinkOrder(sectionId, targetList);
+            }
         });
-    }
+        linkSortables.push(sortable);
+    });
+}
 
-    function disableDragAndDrop() {
-        if (sectionSortable) sectionSortable.destroy();
-        linkSortables.forEach(s => s.destroy());
-        linkSortables = [];
-    }
+// --- 3. Interaction Logic (Long Press & Edit Mode) ---
+function initInteractionListeners() {
+    const appContainer = document.querySelector('body');
 
+    // Long Press Detection
+    appContainer.addEventListener('mousedown', handleStartPress);
+    appContainer.addEventListener('touchstart', handleStartPress, { passive: true });
 
-    // --- 3. MODAL & CLICK TO EDIT ---
+    appContainer.addEventListener('mouseup', handleCancelPress);
+    appContainer.addEventListener('mouseleave', handleCancelPress);
+    appContainer.addEventListener('touchend', handleCancelPress);
+    appContainer.addEventListener('touchmove', handleCancelPress);
 
-    const editModal = document.getElementById('edit-modal');
-    const editForm = document.getElementById('edit-form');
-    
-    // Delegate click event for items in edit mode
-    gridContainer.addEventListener('click', (e) => {
+    // Consolidated Click Handler
+    appContainer.addEventListener('click', (e) => {
+        // 1. If this click came from the Long Press release, ignore it
+        if (ignoreNextClick) {
+            ignoreNextClick = false;
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
+        // 2. If NOT in edit mode, let normal interactions (like following links) happen
         if (!isEditMode) return;
 
-        const section = e.target.closest('.draggable-section');
-        const link = e.target.closest('.draggable-link');
+        // 3. We are in Edit Mode. Check what was clicked.
+        const sectionEl = e.target.closest('.draggable-section');
+        const linkEl = e.target.closest('.draggable-link');
+        const isModal = e.target.closest('#edit-modal');
+        // Check if click is inside the modal content box (to prevent closing when clicking input fields)
+        const isModalContent = e.target.closest('.relative.transform.overflow-hidden'); 
 
-        // Prioritize Link click
-        if (link) {
+        // A. Clicked a Section Header -> Edit Section
+        if (sectionEl && e.target.closest('.section-header')) {
             e.preventDefault();
-            e.stopPropagation();
-            openEditModal('link', link.dataset.id);
+            openEditModal('section', sectionEl.getAttribute('data-id'));
+            return;
         } 
-        // Then Section click (if clicked on header)
-        else if (section && e.target.closest('.section-header')) {
+        
+        // B. Clicked a Link -> Edit Link
+        if (linkEl) {
             e.preventDefault();
-            e.stopPropagation();
-            openEditModal('section', section.dataset.id);
+            openEditModal('link', linkEl.getAttribute('data-id'));
+            return;
+        }
+
+        // C. Clicked Background (not item, not modal) -> Exit Edit Mode
+        if (!isModal && !isModalContent) {
+            toggleEditMode(false);
         }
     });
+}
 
-    window.openEditModal = async (type, id) => {
-        const urlField = document.getElementById('url-field-group');
+function handleStartPress(e) {
+    if (isEditMode) return; 
+    
+    // Only trigger on actual items
+    if (!e.target.closest('.draggable-section') && !e.target.closest('.draggable-link')) return;
+
+    longPressTimer = setTimeout(() => {
+        toggleEditMode(true);
+        ignoreNextClick = true; // Set flag to swallow the immediate 'mouseup->click' event
+    }, 800); 
+}
+
+function handleCancelPress() {
+    clearTimeout(longPressTimer);
+}
+
+function toggleEditMode(enable) {
+    isEditMode = enable;
+    const body = document.body;
+    const modeIndicator = document.getElementById('mode-indicator');
+
+    if (enable) {
+        body.classList.add('edit-mode-active');
+        if(modeIndicator) modeIndicator.innerText = "Edit Mode Active (Drag to move, Click to edit, Click bg to exit)";
         
-        // Reset Form
-        editForm.reset();
+        if (sectionSortable) sectionSortable.option("disabled", false);
+        linkSortables.forEach(s => s.option("disabled", false));
+    } else {
+        body.classList.remove('edit-mode-active');
+        if(modeIndicator) modeIndicator.innerText = "Hold any item to Edit";
         
-        // Fetch Data
-        try {
-            const response = await fetch(`/startpages/api/get-item-details/?type=${type}&id=${id}`);
-            const data = await response.json();
-            
+        if (sectionSortable) sectionSortable.option("disabled", true);
+        linkSortables.forEach(s => s.option("disabled", true));
+    }
+}
+
+// --- 4. API Calls (Persistence) ---
+
+function saveSectionOrder() {
+    const grid = document.getElementById('grid-container');
+    const sections = grid.querySelectorAll('.draggable-section');
+    const ids = Array.from(sections).map(sec => sec.getAttribute('data-id'));
+
+    fetch('/api/update-section-order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ ids: ids })
+    }).then(res => {
+        if (!res.ok) console.error("Failed to save section order");
+    });
+}
+
+function saveLinkOrder(sectionId, container) {
+    const links = container.querySelectorAll('.draggable-link');
+    const ids = Array.from(links).map(link => link.getAttribute('data-id'));
+
+    fetch('/api/update-link-order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            section_id: sectionId,
+            link_ids: ids
+        })
+    }).then(res => {
+        if (!res.ok) console.error("Failed to save link order");
+    });
+}
+
+// --- 5. Modal Logic ---
+
+const modal = document.getElementById('edit-modal');
+const form = document.getElementById('edit-form');
+const urlGroup = document.getElementById('url-field-group');
+
+function initModalLogic() {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveItemDetails();
+    });
+}
+
+function openEditModal(type, id) {
+    fetch(`/api/get-item-details/?type=${type}&id=${id}`)
+        .then(response => response.json())
+        .then(data => {
             document.getElementById('edit-id').value = data.id;
             document.getElementById('edit-type').value = data.type;
             document.getElementById('edit-name').value = data.name;
-            
+
             if (type === 'link') {
-                urlField.classList.remove('hidden');
+                urlGroup.style.display = 'block';
                 document.getElementById('edit-url').value = data.url;
             } else {
-                urlField.classList.add('hidden');
+                urlGroup.style.display = 'none';
             }
-            
-            editModal.classList.remove('hidden');
-        } catch (error) {
-            console.error('Error fetching details:', error);
-        }
-    };
 
-    window.closeEditModal = () => {
-        editModal.classList.add('hidden');
-    };
+            modal.classList.remove('hidden');
+        })
+        .catch(err => console.error(err));
+}
 
-    // Save Form
-    editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(editForm);
-        const data = Object.fromEntries(formData.entries());
-        
-        try {
-            const response = await fetch('/startpages/api/save-item-details/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (response.ok) {
-                closeEditModal();
-                // Refresh page to show changes (or update DOM manually for smoother XP)
-                window.location.reload(); 
-            }
-        } catch (error) {
-            console.error('Error saving:', error);
+function closeEditModal() {
+    modal.classList.add('hidden');
+}
+
+function saveItemDetails() {
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch('/api/save-item-details/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(data)
+    }).then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            closeEditModal();
+            location.reload(); 
         }
     });
+}
 
-
-    // --- 4. API SAVING LOGIC ---
-
-    async function saveSectionOrder() {
-        // Get array of IDs based on DOM order
-        const sections = Array.from(gridContainer.children)
-                              .map(el => el.dataset.id)
-                              .filter(id => id !== undefined);
-
-        await fetch('/startpages/api/update-section-order/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ ids: sections })
-        });
-    }
-
-    async function saveLinkOrder(sectionElement) {
-        const sectionId = sectionElement.dataset.sectionId;
-        const links = Array.from(sectionElement.children)
-                           .map(el => el.dataset.id)
-                           .filter(id => id !== undefined);
-
-        await fetch('/startpages/api/update-link-order/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ 
-                section_id: sectionId,
-                link_ids: links 
-            })
-        });
-    }
-
-    // Helper: Get CSRF Token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-});
+window.closeEditModal = closeEditModal;
