@@ -8,7 +8,8 @@ let isEditMode = false;
 let sectionSortable = null;
 let linkSortables = [];
 let longPressTimer;
-let ignoreNextClick = false; // Flag to prevent modal opening immediately after long-press release
+let ignoreNextClick = false;
+let clickStartTime = 0; 
 
 // --- 1. CSRF Token Helper ---
 function getCookie(name) {
@@ -33,7 +34,6 @@ function initSortables() {
     const gridContainer = document.getElementById('grid-container');
     const linkContainers = document.querySelectorAll('.section-links');
 
-    // Section Sorting
     if (gridContainer) {
         sectionSortable = new Sortable(gridContainer, {
             animation: 150,
@@ -45,7 +45,6 @@ function initSortables() {
         });
     }
 
-    // Link Sorting
     linkContainers.forEach(container => {
         const sortable = new Sortable(container, {
             group: 'links', 
@@ -63,22 +62,26 @@ function initSortables() {
     });
 }
 
-// --- 3. Interaction Logic (Long Press & Edit Mode) ---
+// --- 3. Interaction Logic ---
 function initInteractionListeners() {
     const appContainer = document.querySelector('body');
 
-    // Long Press Detection
-    appContainer.addEventListener('mousedown', handleStartPress);
-    appContainer.addEventListener('touchstart', handleStartPress, { passive: true });
+    // Start press: Track time for Short Click vs Long Hold logic
+    const startHandler = (e) => {
+        clickStartTime = Date.now();
+        handleStartPress(e);
+    };
+
+    appContainer.addEventListener('mousedown', startHandler);
+    appContainer.addEventListener('touchstart', startHandler, { passive: true });
 
     appContainer.addEventListener('mouseup', handleCancelPress);
     appContainer.addEventListener('mouseleave', handleCancelPress);
     appContainer.addEventListener('touchend', handleCancelPress);
     appContainer.addEventListener('touchmove', handleCancelPress);
 
-    // Consolidated Click Handler
     appContainer.addEventListener('click', (e) => {
-        // 1. If this click came from the Long Press release, ignore it
+        // 1. Prevent 'mouseup' from a long press entering edit mode from triggering a click immediately
         if (ignoreNextClick) {
             ignoreNextClick = false;
             e.preventDefault();
@@ -86,32 +89,45 @@ function initInteractionListeners() {
             return;
         }
 
-        // 2. If NOT in edit mode, let normal interactions (like following links) happen
         if (!isEditMode) return;
 
-        // 3. We are in Edit Mode. Check what was clicked.
+        // 2. Logic: If click duration > 200ms, it was a drag, NOT a click. Do not open modal.
+        const duration = Date.now() - clickStartTime;
+        if (duration > 200) {
+            return; 
+        }
+
         const sectionEl = e.target.closest('.draggable-section');
         const linkEl = e.target.closest('.draggable-link');
-        const isModal = e.target.closest('#edit-modal');
-        // Check if click is inside the modal content box (to prevent closing when clicking input fields)
-        const isModalContent = e.target.closest('.relative.transform.overflow-hidden'); 
-
-        // A. Clicked a Section Header -> Edit Section
-        if (sectionEl && e.target.closest('.section-header')) {
-            e.preventDefault();
-            openEditModal('section', sectionEl.getAttribute('data-id'));
-            return;
-        } 
         
-        // B. Clicked a Link -> Edit Link
+        // Modal Check:
+        const isModal = e.target.closest('#edit-modal');
+        const isModalCard = e.target.closest('#edit-modal-card'); 
+
+        // CRITICAL: If we are interacting with the modal card, DO NOTHING.
+        // Let the browser handle focus/input.
+        if (isModalCard) {
+            return;
+        }
+
+        // CASE A: Clicked on a Link -> Edit Link
         if (linkEl) {
             e.preventDefault();
+            e.stopPropagation(); 
             openEditModal('link', linkEl.getAttribute('data-id'));
             return;
         }
 
-        // C. Clicked Background (not item, not modal) -> Exit Edit Mode
-        if (!isModal && !isModalContent) {
+        // CASE B: Clicked ANYWHERE on a Section (that isn't a link) -> Edit Section
+        if (sectionEl) {
+            e.preventDefault();
+            openEditModal('section', sectionEl.getAttribute('data-id'));
+            return;
+        } 
+
+        // CASE C: Exit Edit Mode if background clicked
+        // Only if we are NOT clicking the modal wrapper (which handles its own closing via onclick)
+        if (!isModal) {
             toggleEditMode(false);
         }
     });
@@ -120,12 +136,11 @@ function initInteractionListeners() {
 function handleStartPress(e) {
     if (isEditMode) return; 
     
-    // Only trigger on actual items
     if (!e.target.closest('.draggable-section') && !e.target.closest('.draggable-link')) return;
 
     longPressTimer = setTimeout(() => {
         toggleEditMode(true);
-        ignoreNextClick = true; // Set flag to swallow the immediate 'mouseup->click' event
+        ignoreNextClick = true; 
     }, 800); 
 }
 
@@ -153,7 +168,7 @@ function toggleEditMode(enable) {
     }
 }
 
-// --- 4. API Calls (Persistence) ---
+// --- 4. API Calls ---
 
 function saveSectionOrder() {
     const grid = document.getElementById('grid-container');
@@ -162,13 +177,8 @@ function saveSectionOrder() {
 
     fetch('/api/update-section-order/', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify({ ids: ids })
-    }).then(res => {
-        if (!res.ok) console.error("Failed to save section order");
     });
 }
 
@@ -178,20 +188,12 @@ function saveLinkOrder(sectionId, container) {
 
     fetch('/api/update-link-order/', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify({
-            section_id: sectionId,
-            link_ids: ids
-        })
-    }).then(res => {
-        if (!res.ok) console.error("Failed to save link order");
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ section_id: sectionId, link_ids: ids })
     });
 }
 
-// --- 5. Modal Logic ---
+// --- 5. Modal Logic & UI Updates ---
 
 const modal = document.getElementById('edit-modal');
 const form = document.getElementById('edit-form');
@@ -234,18 +236,64 @@ function saveItemDetails() {
 
     fetch('/api/save-item-details/', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify(data)
-    }).then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.status === 'success') {
             closeEditModal();
-            location.reload(); 
+            updateUiItem(data);
+            showToast('Saved successfully!');
+        } else {
+            showToast('Error saving item', 'error');
         }
+    })
+    .catch(() => showToast('Network error', 'error'));
+}
+
+// Update DOM without reload
+function updateUiItem(data) {
+    if (data.type === 'section') {
+        const section = document.querySelector(`.draggable-section[data-id="${data.id}"]`);
+        if (section) {
+            const titleEl = section.querySelector('h2');
+            if(titleEl) titleEl.innerText = data.name;
+        }
+    } else if (data.type === 'link') {
+        const linkWrapper = document.querySelector(`.draggable-link[data-id="${data.id}"]`);
+        if (linkWrapper) {
+            const anchor = linkWrapper.querySelector('a');
+            if (anchor) {
+                anchor.innerText = data.name;
+                anchor.href = data.url;
+            }
+        }
+    }
+}
+
+// --- 6. Toast Notification System ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    
+    const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+    toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-10 opacity-0 flex items-center gap-2`;
+    toast.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}"></path></svg>
+        <span class="font-medium text-sm">${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
     });
+
+    setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 window.closeEditModal = closeEditModal;
