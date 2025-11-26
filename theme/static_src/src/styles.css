@@ -42,29 +42,29 @@
 
 @layer components {
   .button-base {
-    @apply transition-colors dark:text-white h-10 rounded-md cursor-pointer;
+    @apply transition-colors dark:text-white rounded-md cursor-pointer;
   }
 
   .button-primary {
-    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white h-10 rounded-md cursor-pointer;
+    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white rounded-md cursor-pointer;
   }
 
   .button {
-    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white h-10 w-30 rounded-md cursor-pointer;
+    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white rounded-md cursor-pointer;
   }
 
   
 
   .button-info {
-    @apply bg-sky-500/60 hover:bg-sky-500/80 transition-colors dark:text-white h-10 w-30 rounded-md cursor-pointer;
+    @apply bg-sky-500/60 hover:bg-sky-500/80 transition-colors dark:text-white h-10 rounded-md cursor-pointer;
   }
   .button-success {
-    @apply bg-emerald-500/60 hover:bg-emerald-500/80 transition-colors dark:text-white h-10 w-30 rounded-md cursor-pointer;
+    @apply bg-emerald-500/60 hover:bg-emerald-500/80 transition-colors dark:text-white h-10 rounded-md cursor-pointer;
   }
   .button-warn {
-    @apply bg-amber-400/60 hover:bg-amber-400/80 transition-colors dark:text-white h-10 w-30 rounded-md cursor-pointer;
+    @apply bg-amber-400/60 hover:bg-amber-400/80 transition-colors dark:text-white h-10 rounded-md cursor-pointer;
   }
   .button-error {
-    @apply bg-rose-500/60 hover:bg-rose-500/80 transition-colors dark:text-white h-10 w-30 rounded-md cursor-pointer;
+    @apply bg-rose-500/60 hover:bg-rose-500/80 transition-colors dark:text-white h-10 rounded-md cursor-pointer;
   }
 }

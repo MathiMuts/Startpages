@@ -15,7 +15,6 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
 
-    'example_app',
     'startpages',
 ]
 

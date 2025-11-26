@@ -7,7 +7,7 @@
   <div class="container mx-auto px-6 flex flex-col gap-4">
     <h1 class="dark:text-neutral-300 text-5xl">Testbuttons</h1>
     <div class="flex flex-wrap gap-4 ">
-      <form method="POST" class="space-x-4">
+      <form method="POST" class="space-x-4 *:w-32">
         {% csrf_token %}
         <button type="submit" name="message_type" value="info" class="button-info">
           button-info
@@ -27,9 +27,9 @@
     {% include "../../components/_darkmode-button.html" %}
 
     <div class="flex flex-wrap gap-4 ">
-      <button class="button">
-          button
-        </button>
+      <button class="button w-32 h-32">
+        button
+      </button>
     </div>
   </div>
 </section>

@@ -1,0 +1,29 @@
+<form method="GET" action="https://www.google.com/search" class="w-full max-w-xl mx-auto">
+
+    <div class="relative flex items-center">
+        <input 
+            type="search" 
+            name="as_q" 
+            placeholder="Search for..."
+            autofocus=""
+            autocomplete="off"
+            aria-label="Search"
+            class="w-full pl-4 pr-12 py-3
+            rounded-full border-2 border-neutral-200 dark:border-neutral-700
+            bg-white dark:bg-neutral-700
+            text-neutral-900 dark:text-neutral-200
+            placeholder:text-neutral-400
+            {% comment %} focus:ring-2 focus:ring-blue-500/50  {% endcomment %}
+            focus:dark:border-neutral-100
+            focus:border-neutral-600
+            transition-all duration-300"
+        >
+
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-neutral-500 dark:text-neutral-400 transition-colors">
+        <span class="sr-only">Search</span>
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+        </button>
+    </div>
+</form>
