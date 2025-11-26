@@ -10,8 +10,8 @@
     </a>
 
     <div class="flex flex-col gap-2">
-        {% for link in section.links %}
-            <a href={{ link.link }} class="text-neutral-700 dark:text-neutral-400 hover:underline">{{ link.name }}</a>
+        {% for link in section.links.all %}
+            <a href={{ link.url }} class="text-neutral-700 dark:text-neutral-400 hover:underline">{{ link.name }}</a>
         {% endfor %}
     </div>
 

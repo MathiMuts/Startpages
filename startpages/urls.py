@@ -7,5 +7,8 @@ app_name = 'startpages'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('<str:username>/<slug:slug>/', views.index, name='detail'),
+    
+    
     path('testpage', views.testpage, name='testpage'),
 ]

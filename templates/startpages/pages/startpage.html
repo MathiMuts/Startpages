@@ -10,6 +10,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
                  w-72        sm:w-152       md:w-232       lg:w-312       xl:w-392
             gap-8 mx-auto">
+            
   {% for sec in sections %}
     {% include "../../components/_section.html" with section=sec %}
   {% endfor %}
