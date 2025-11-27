@@ -28,13 +28,13 @@
       {% include "./_messages.html" %}
       {% if user.is_authenticated %}
         <a href="{% url 'startpages:profile' %}" 
-           class="block w-10 h-10 rounded-full overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-all shadow-lg hover:scale-105"
+           class="block w-15 h-15 rounded-full overflow-hidden border-2 border-transparent hover:border-primary-500 transition-all shadow-lg hover:scale-105"
            title="Go to Profile">
             
             {% if user.profile.avatar %}
                 <img src="{{ user.profile.avatar.url }}" alt="Profile" class="w-full h-full object-cover">
             {% else %}
-                <div class="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold uppercase">
+                <div class="w-full h-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold uppercase">
                     {{ user.username|slice:":2" }}
                 </div>
             {% endif %}
@@ -52,7 +52,7 @@
   <style>
     /* Edit Mode Visual Cues */
     .edit-mode-active .draggable-section {
-        border: 1px dashed #6366f1; /* Indigo-500 */
+        border: 1px dashed #6366f1; /* primary-500 */
         cursor: grab;
         animation: pulse-border 2s infinite;
     }
