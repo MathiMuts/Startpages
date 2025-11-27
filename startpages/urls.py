@@ -13,6 +13,10 @@ urlpatterns = [
     # Profile & Settings
     path('profile/', views.profile, name='profile'),
     path('profile/create-page/', views.create_startpage, name='create_startpage'),
+        path('profile/import-page/', views.import_startpage, name='import_startpage'),
+    path('profile/page/<int:page_id>/edit/', views.edit_startpage, name='edit_startpage'),
+    path('profile/page/<int:page_id>/delete/', views.delete_startpage, name='delete_startpage'),
+    path('profile/page/<int:page_id>/export/', views.export_startpage, name='export_startpage'),
     path('profile/set-default/<int:page_id>/', views.set_default_page, name='set_default_page'),
     path('profile/update-info/', views.update_personal_info, name='update_personal_info'),
     
