@@ -19,5 +19,5 @@ redis~=5.0
 # Tailwind
 django-tailwind==4.2.0
 
-# # Images
-# pillow==11.3.0
+# Images
+pillow==11.3.0

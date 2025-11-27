@@ -1,0 +1,244 @@
+{% extends "../../modules/_base.html" %}
+{% load static %}
+
+{% block title %}Profile Settings{% endblock title %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 min-h-screen">
+    <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row border border-neutral-200 dark:border-neutral-700">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-full md:w-64 bg-neutral-50 dark:bg-neutral-900/50 border-r border-neutral-200 dark:border-neutral-700 p-6 flex flex-col gap-6">
+            
+            <!-- User Short Info -->
+            <div class="text-center mb-4">
+                <div class="w-20 h-20 mx-auto rounded-full overflow-hidden mb-3 border-4 border-white dark:border-neutral-700 shadow-sm">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-indigo-500 flex items-center justify-center text-white text-2xl font-bold uppercase">
+                            {{ user.username|slice:":2" }}
+                        </div>
+                    {% endif %}
+                </div>
+                <h2 class="text-lg font-bold text-neutral-800 dark:text-white">{{ user.username }}</h2>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Member</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex flex-col gap-2">
+                <button onclick="switchTab('personal')" id="tab-btn-personal" class="tab-btn text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                    Personal Info
+                </button>
+                <button onclick="switchTab('startpages')" id="tab-btn-startpages" class="tab-btn text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                    My Startpages
+                </button>
+                <button onclick="switchTab('customization')" id="tab-btn-customization" class="tab-btn text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                    Customization
+                </button>
+                
+                <hr class="border-neutral-200 dark:border-neutral-700 my-2">
+                
+                <a href="/" class="text-left px-4 py-2 rounded-lg font-medium transition-colors text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                    &larr; Back to Startpage
+                </a>
+            </nav>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 p-8 md:p-12 overflow-y-auto">
+            
+            <!-- TAB: Personal Info -->
+            <div id="tab-personal" class="tab-content hidden animate-fade-in">
+                <h2 class="text-2xl font-bold text-neutral-800 dark:text-white mb-6">Personal Information</h2>
+                
+                <form action="{% url 'startpages:update_personal_info' %}" method="POST" enctype="multipart/form-data" class="space-y-6 max-w-lg">
+                    {% csrf_token %}
+                    
+                    <!-- Username (Read Only) -->
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Username</label>
+                        <input type="text" value="{{ user.username }}" disabled
+                               class="w-full px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 text-neutral-500 cursor-not-allowed">
+                        <p class="text-xs text-neutral-400 mt-1">Username cannot be changed.</p>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email Address</label>
+                        <input type="email" name="email" value="{{ user.email }}"
+                               class="w-full px-4 py-2 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Profile Picture -->
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Profile Picture</label>
+                        <input type="file" name="avatar" accept="image/*"
+                               class="block w-full text-sm text-neutral-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-indigo-50 file:text-indigo-700
+                                      hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300">
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB: My Startpages -->
+            <div id="tab-startpages" class="tab-content hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">My Startpages</h2>
+                    
+                    <!-- Create New Form (Inline) -->
+                    <form action="{% url 'startpages:create_startpage' %}" method="POST" class="flex gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="title" placeholder="New page title..." required
+                               class="px-3 py-1 rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-sm dark:text-white">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3 py-1 rounded-md transition-colors">
+                            Create
+                        </button>
+                    </form>
+                </div>
+
+                <div class="grid gap-4">
+                    {% for page in startpages %}
+                    <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border {% if page.is_default %}border-emerald-500 ring-1 ring-emerald-500{% else %}border-neutral-200 dark:border-neutral-700{% endif %}">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 rounded-lg {% if page.is_default %}bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30{% else %}bg-neutral-200 dark:bg-neutral-800 text-neutral-500{% endif %}">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-neutral-800 dark:text-white">{{ page.title }}</h3>
+                                <a href="{% url 'startpages:detail' user.username page.slug %}" target="_blank" class="text-xs text-indigo-500 hover:underline">
+                                    /{{ user.username }}/{{ page.slug }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            {% if page.is_default %}
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-1 rounded-full">Default</span>
+                            {% else %}
+                                <a href="{% url 'startpages:set_default_page' page.id %}" class="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white underline">Set Default</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-10 text-neutral-500">
+                        You don't have any startpages yet. Create one above!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- TAB: Customization -->
+            <div id="tab-customization" class="tab-content hidden animate-fade-in">
+                <h2 class="text-2xl font-bold text-neutral-800 dark:text-white mb-6">Customization</h2>
+                
+                <div class="space-y-6">
+                    <!-- Theme Toggle Section -->
+                    <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                        <div>
+                            <h3 class="font-bold text-neutral-800 dark:text-white">App Theme</h3>
+                            <p class="text-sm text-neutral-500">Toggle between Light and Dark mode.</p>
+                        </div>
+                        
+                        <!-- Re-using logic from original button but styled for settings -->
+                        <button id="profile-dark-mode-toggle" type="button" class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-neutral-200 dark:bg-indigo-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
+                            <span class="sr-only">Use setting</span>
+                            <span aria-hidden="true" class="pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0 dark:translate-x-6 flex items-center justify-center">
+                                <!-- Sun Icon (shown in light) -->
+                                <svg class="w-4 h-4 text-amber-500 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                <!-- Moon Icon (shown in dark) -->
+                                <svg class="w-4 h-4 text-indigo-500 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm">
+                        More customization options coming soon!
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        // Hide all contents
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        // Remove active styles from buttons
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('bg-indigo-100', 'text-indigo-700', 'dark:bg-indigo-900/50', 'dark:text-indigo-300');
+            el.classList.add('text-neutral-600', 'dark:text-neutral-300');
+        });
+
+        // Show selected
+        const content = document.getElementById('tab-' + tabName);
+        const btn = document.getElementById('tab-btn-' + tabName);
+        
+        if(content) content.classList.remove('hidden');
+        if(btn) {
+            btn.classList.remove('text-neutral-600', 'dark:text-neutral-300');
+            btn.classList.add('bg-indigo-100', 'text-indigo-700', 'dark:bg-indigo-900/50', 'dark:text-indigo-300');
+        }
+
+        // Update URL without reload
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.pushState({}, '', url);
+    }
+
+    // Initialize based on URL param or default
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab') || 'personal';
+        switchTab(tab);
+
+        // Dark Mode Logic for the Profile Page Toggle
+        const profileToggle = document.getElementById("profile-dark-mode-toggle");
+        const htmlEl = document.documentElement;
+
+        if (profileToggle) {
+            profileToggle.addEventListener("click", () => {
+                if (htmlEl.classList.contains('dark')) {
+                    htmlEl.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                    // Force refresh visuals for specific toggle classes
+                    profileToggle.querySelector('span[aria-hidden="true"]').classList.remove('translate-x-6');
+                    profileToggle.querySelector('span[aria-hidden="true"]').classList.add('translate-x-0');
+                } else {
+                    htmlEl.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                    profileToggle.querySelector('span[aria-hidden="true"]').classList.remove('translate-x-0');
+                    profileToggle.querySelector('span[aria-hidden="true"]').classList.add('translate-x-6');
+                }
+            });
+
+            // Set initial visual state of the toggle
+            if (htmlEl.classList.contains('dark')) {
+                profileToggle.querySelector('span[aria-hidden="true"]').classList.remove('translate-x-0');
+                profileToggle.querySelector('span[aria-hidden="true"]').classList.add('translate-x-6');
+            }
+        }
+    });
+</script>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

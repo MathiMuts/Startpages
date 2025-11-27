@@ -10,6 +10,12 @@ urlpatterns = [
     # Main page
     path('', views.index, name='index'),
     
+    # Profile & Settings
+    path('profile/', views.profile, name='profile'),
+    path('profile/create-page/', views.create_startpage, name='create_startpage'),
+    path('profile/set-default/<int:page_id>/', views.set_default_page, name='set_default_page'),
+    path('profile/update-info/', views.update_personal_info, name='update_personal_info'),
+    
     # API Endpoints
     path('api/update-section-order/', api.update_section_order, name='update_section_order'),
     path('api/update-link-order/', api.update_link_order, name='update_link_order'),
