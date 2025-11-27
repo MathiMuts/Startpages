@@ -60,7 +60,6 @@ def update_section_order(request):
     section_ids = data.get('ids', [])
     
     for index, sec_id in enumerate(section_ids):
-        # Verify ownership to prevent editing other people's sections
         Section.objects.filter(id=sec_id, page__user=request.user).update(order=index)
         
     return JsonResponse({'status': 'success'})
@@ -73,11 +72,19 @@ def update_link_order(request):
     section_id = data.get('section_id')
     link_ids = data.get('link_ids', [])
     
-    # Ensure target section belongs to user
+    # 1. Validation: Max 10 links per section
+    if len(link_ids) > 10:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Section cannot contain more than 10 links.'
+        }, status=400)
+    
     target_section = get_object_or_404(Section, id=section_id, page__user=request.user)
     
+    # 2. Update logic
     for index, link_id in enumerate(link_ids):
-        # Update order AND parent section (in case it was dragged to a new section)
+        # We ensure the link belongs to the user via section__page__user
+        # This moves the link to the new section AND updates the order
         Link.objects.filter(id=link_id, section__page__user=request.user).update(
             order=index, 
             section=target_section
@@ -121,3 +128,38 @@ def save_item_details(request):
         item.save()
         
     return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def add_link(request):
+    """Expects JSON: { 'section_id': 1, 'name': 'Foo', 'url': '...' }"""
+    data = json.loads(request.body)
+    section_id = data.get('section_id')
+    name = data.get('name')
+    url = data.get('url')
+
+    section = get_object_or_404(Section, id=section_id, page__user=request.user)
+    
+    # Check limit
+    if section.links.count() >= 10:
+        return JsonResponse({'status': 'error', 'message': 'Max 10 links per section allowed.'}, status=400)
+
+    # Calculate order (put at end)
+    max_order = section.links.order_by('-order').first()
+    new_order = (max_order.order + 1) if max_order else 0
+
+    new_link = Link.objects.create(
+        section=section,
+        name=name,
+        url=url,
+        order=new_order
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'link': {
+            'id': new_link.id,
+            'name': new_link.name,
+            'url': new_link.url
+        }
+    })

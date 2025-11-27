@@ -50,7 +50,7 @@
   }
 
   .button {
-    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white rounded-md cursor-pointer;
+    @apply bg-neutral-500/30 hover:bg-neutral-500/50 transition-colors dark:text-white rounded-md cursor-pointer;
   }
 
   

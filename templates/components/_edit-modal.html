@@ -1,0 +1,72 @@
+<!-- EDIT MODAL -->
+<div id="edit-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    
+    <div class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm transition-opacity"></div>
+
+    <!-- 
+        Main Container (Scrollable & Full Screen)
+        - onclick="closeEditModal()": Clicks on this background area will close the modal.
+    -->
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto" onclick="closeEditModal()">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center">
+            
+            <!-- 
+                Modal Card 
+                - ID: edit-modal-card
+                - onclick="event.stopPropagation()": CRITICAL. Prevents clicks inside the card from bubbling to the background and closing the modal.
+                - overflow-hidden + rounded-2xl: Ensures corners are actually cut off.
+            -->
+            <div id="edit-modal-card"
+                 onclick="event.stopPropagation()"
+                 class="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg
+                        bg-white dark:bg-neutral-900 
+                        border border-neutral-200 dark:border-neutral-700">
+                
+                <!-- Content Padding Wrapper -->
+                <!-- Separating layout (padding) from the card structure ensures it always applies -->
+                <div class="px-8 py-8 sm:p-10">
+                    
+                    <h3 class="text-2xl font-bold leading-6 text-neutral-900 dark:text-white mb-6" id="modal-title">Test Item</h3>
+                    
+                    <form id="edit-form" class="flex flex-col gap-6">
+                        <input type="hidden" id="edit-id" name="id">
+                        <input type="hidden" id="edit-type" name="type">
+
+                        <div>
+                            <label class="block text-md font-bold text-neutral-700 dark:text-neutral-300 mb-2">Name</label>
+                            <input type="text" id="edit-name" name="name" 
+                                   class="block w-full rounded-md border-0 py-3 px-4 text-neutral-900 placeholder:text-neutral-400
+                                    bg-neutral-500/30 focus:bg-neutral-500/31
+                                    sm:text-md sm:leading-6 dark:bg-neutral-800 dark:text-white">
+                        </div>
+
+                        <div id="url-field-group">
+                            <label class="block text-md font-bold text-neutral-700 dark:text-neutral-300 mb-2">URL</label>
+                            <input type="url" id="edit-url" name="url" 
+                                   class="block w-full rounded-md border-0 py-3 px-4 text-neutral-900 placeholder:text-neutral-400
+                                    bg-neutral-500/30 focus:bg-neutral-500/31
+                                    sm:text-md sm:leading-6 dark:bg-neutral-800 dark:text-white">
+                        </div>
+
+                        <div class="mt-4 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-4">
+                            <button type="submit" 
+                                    class="inline-flex w-full justify-center
+                                    button-primary
+                                    px-3 py-3 text-sm font-bold text-white
+                                    sm:col-start-2">
+                                Save Changes
+                            </button>
+                            <button type="button" onclick="closeEditModal()" 
+                                    class="inline-flex w-full justify-center
+                                    button
+                                    px-3 py-3 text-sm font-bold text-white
+                                    sm:col-start-1">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
