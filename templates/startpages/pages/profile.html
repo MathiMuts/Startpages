@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-12 min-h-screen">
-    <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row border border-neutral-200 dark:border-neutral-700">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row border border-neutral-200 dark:border-gray-700">
         
         <!-- SIDEBAR -->
-        <aside class="w-full md:w-64 bg-neutral-50 dark:bg-neutral-900/50 border-r border-neutral-200 dark:border-neutral-700 p-6 flex flex-col gap-6">
+        <aside class="w-full md:w-64 bg-neutral-50 dark:bg-gray-900/50 border-r border-neutral-200 dark:border-gray-700 p-6 flex flex-col gap-6">
             
             <!-- User Short Info -->
             <div class="text-center mb-4">
-                <div class="w-20 h-20 mx-auto rounded-full overflow-hidden mb-3 border-4 border-white dark:border-neutral-700 shadow-sm">
+                <div class="w-20 h-20 mx-auto rounded-full overflow-hidden mb-3 border-4 border-white dark:border-gray-700 shadow-sm">
                     {% if user.profile.avatar %}
                         <img src="{{ user.profile.avatar.url }}" class="w-full h-full object-cover">
                     {% else %}
@@ -22,22 +22,22 @@
                     {% endif %}
                 </div>
                 <h2 class="text-lg font-bold text-neutral-800 dark:text-white">{{ user.username }}</h2>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400">Member</p>
+                <p class="text-sm text-neutral-500 dark:text-gray-400">Member</p>
             </div>
 
             <!-- Navigation -->
             <nav class="flex flex-col gap-2">
-                <button onclick="switchTab('personal')" id="tab-btn-personal" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                <button onclick="switchTab('personal')" id="tab-btn-personal" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-gray-300 hover:bg-neutral-200 dark:hover:bg-gray-800">
                     Personal Info
                 </button>
-                <button onclick="switchTab('startpages')" id="tab-btn-startpages" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                <button onclick="switchTab('startpages')" id="tab-btn-startpages" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-gray-300 hover:bg-neutral-200 dark:hover:bg-gray-800">
                     My Startpages
                 </button>
-                <button onclick="switchTab('customization')" id="tab-btn-customization" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800">
+                <button onclick="switchTab('customization')" id="tab-btn-customization" class="tab-btn cursor-pointer text-left px-4 py-2 rounded-lg font-medium transition-colors text-neutral-600 dark:text-gray-300 hover:bg-neutral-200 dark:hover:bg-gray-800">
                     Customization
                 </button>
                 
-                <hr class="border-neutral-200 dark:border-neutral-700 my-2">
+                <hr class="border-neutral-200 dark:border-gray-700 my-2">
                 
                 <a href="/" class="text-left px-4 py-2 rounded-lg font-medium transition-colors text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20">
                     &larr; Back to Startpage
@@ -57,22 +57,22 @@
                     
                     <!-- Username (Read Only) -->
                     <div>
-                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Username</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Username</label>
                         <input type="text" value="{{ user.username }}" disabled
-                               class="w-full px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 text-neutral-500 cursor-not-allowed">
+                               class="w-full px-4 py-2 rounded-lg bg-neutral-100 dark:bg-gray-900 border border-neutral-300 dark:border-gray-600 text-neutral-500 cursor-not-allowed">
                         <p class="text-xs text-neutral-400 mt-1">Username cannot be changed.</p>
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Email Address</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Email Address</label>
                         <input type="email" name="email" value="{{ user.email }}"
-                               class="w-full px-4 py-2 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                               class="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-neutral-300 dark:border-gray-600 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
 
                     <!-- Profile Picture -->
                     <div>
-                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Profile Picture</label>
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Profile Picture</label>
                         <input type="file" name="avatar" accept="image/*"
                                class="block w-full text-sm text-neutral-500
                                       file:mr-4 file:py-2 file:px-4
@@ -97,7 +97,7 @@
                     
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                         <!-- Import Button -->
-                        <button onclick="openImportModal()" class="bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-800 dark:text-white text-sm font-bold px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
+                        <button onclick="openImportModal()" class="bg-neutral-200 dark:bg-gray-700 hover:bg-neutral-300 dark:hover:bg-gray-600 text-neutral-800 dark:text-white text-sm font-bold px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             Import
                         </button>
@@ -106,7 +106,7 @@
                         <form action="{% url 'startpages:create_startpage' %}" method="POST" class="flex gap-2 flex-1 sm:flex-none">
                             {% csrf_token %}
                             <input type="text" name="title" placeholder="New page title..." required
-                                   class="px-3 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-sm dark:text-white w-full sm:w-40">
+                                   class="px-3 py-1.5 rounded-md border border-neutral-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm dark:text-white w-full sm:w-40">
                             <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3 py-1.5 rounded-md transition-colors cursor-pointer">
                                 Create
                             </button>
@@ -124,10 +124,10 @@
                         data-title="{{ page.title }}"
                         data-default="{{ page.is_default|yesno:'true,false' }}"
                         data-slug="{{ page.slug }}"
-                        class="w-full group text-left flex items-center justify-between p-4 bg-neutral-50 hover:bg-white dark:bg-neutral-900/50 dark:hover:bg-neutral-800 rounded-xl border {% if page.is_default %}border-emerald-500 ring-1 ring-emerald-500{% else %}border-neutral-200 dark:border-neutral-700 hover:border-primary-400 dark:hover:border-primary-500{% endif %} transition-all cursor-pointer shadow-sm hover:shadow-md"
+                        class="w-full group text-left flex items-center justify-between p-4 bg-neutral-50 hover:bg-white dark:bg-gray-900/50 dark:hover:bg-gray-800 rounded-xl border {% if page.is_default %}border-emerald-500 ring-1 ring-emerald-500{% else %}border-neutral-200 dark:border-neutral-700 hover:border-primary-400 dark:hover:border-primary-500{% endif %} transition-all cursor-pointer shadow-sm hover:shadow-md"
                     >
                         <div class="flex items-center gap-4">
-                            <div class="p-2 rounded-lg transition-colors {% if page.is_default %}bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30{% else %}bg-neutral-200 dark:bg-neutral-800 text-neutral-500 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 group-hover:text-primary-600 dark:group-hover:text-primary-400{% endif %}">
+                            <div class="p-2 rounded-lg transition-colors {% if page.is_default %}bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30{% else %}bg-neutral-200 dark:bg-gray-800 text-neutral-500 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 group-hover:text-primary-600 dark:group-hover:text-primary-400{% endif %}">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             </div>
                             <div>
@@ -164,7 +164,7 @@
                 
                 <div class="space-y-6">
                     <!-- Theme Toggle Section -->
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-gray-900/50 rounded-xl border border-neutral-200 dark:border-gray-700">
                         <div>
                             <h3 class="font-bold text-neutral-800 dark:text-white">App Theme</h3>
                             <p class="text-sm text-neutral-500">Toggle between Light and Dark mode.</p>
@@ -226,7 +226,7 @@
                             <!-- Export Button (Action Link) -->
                              <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Export</label>
-                                <a id="edit-page-export-btn" href="#" target="_blank" class="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-neutral-700 px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors">
+                                <a id="edit-page-export-btn" href="#" target="_blank" class="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 dark:border-gray-600 bg-neutral-100 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                     Export JSON
                                 </a>
@@ -295,7 +295,7 @@
                                 <textarea name="json_data" rows="8" required
                                     class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white font-mono text-xs shadow-sm focus:border-emerald-500 focus:ring-emerald-500 p-3"
                                     placeholder='{ "title": "My Page", "sections": [...] }'></textarea>
-                                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Paste the content of a previously exported startpage JSON file.</p>
+                                <p class="text-xs text-neutral-500 dark:text-gray-400 mt-1">Paste the content of a previously exported startpage JSON file.</p>
                             </div>
                         </div>
 
@@ -317,7 +317,7 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(el => {
             el.classList.remove('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
-            el.classList.add('text-neutral-600', 'dark:text-neutral-300');
+            el.classList.add('text-neutral-600', 'dark:text-gray-300');
         });
 
         const content = document.getElementById('tab-' + tabName);
@@ -325,7 +325,7 @@
         
         if(content) content.classList.remove('hidden');
         if(btn) {
-            btn.classList.remove('text-neutral-600', 'dark:text-neutral-300');
+            btn.classList.remove('text-neutral-600', 'dark:text-gray-300');
             btn.classList.add('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
         }
 
