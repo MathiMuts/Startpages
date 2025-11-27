@@ -8,6 +8,9 @@ from django.http import JsonResponse
 from django.db import transaction
 from .models import StartPage, Section, Link, Profile
 
+def home(request):
+    return render(request, 'startpages/pages/index.html')
+    
 def index(request, username=None, slug=None):
     page = None
 
@@ -21,7 +24,7 @@ def index(request, username=None, slug=None):
         if not page:
             page = StartPage.objects.filter(user=request.user).first()
     
-    if not request.user.is_authenticated:
+    else:
         return render(request, 'startpages/pages/index.html')
 
     sections = page.sections.prefetch_related('links').all()
