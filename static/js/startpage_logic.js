@@ -41,9 +41,10 @@ function initSortables() {
 
     if (gridContainer) {
         sectionSortable = new Sortable(gridContainer, {
-            animation: 150,
+            animation: 350, // Increased to 350ms for smoother shuffling
             disabled: true, 
-            handle: '.section-header', 
+            handle: '.section-header',
+            ghostClass: 'sortable-ghost', // Explicitly add ghost class
             onEnd: function (evt) {
                 saveSectionOrder();
             }
