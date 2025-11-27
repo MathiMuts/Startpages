@@ -1,29 +1,35 @@
-<form method="GET" action="https://www.google.com/search" class="w-full max-w-xl mx-auto">
+<form method="GET" action="https://www.google.com/search" class="w-full max-w-xl mx-auto group">
 
     <div class="relative flex items-center">
+        <!-- Input Field -->
         <input 
             type="search" 
             name="as_q" 
-            placeholder="Search for..."
+            placeholder="Search the web..."
             autofocus=""
             autocomplete="off"
             aria-label="Search"
-            class="w-full pl-4 pr-12 py-3
-            rounded-full border-2 border-neutral-200 dark:border-neutral-700
-            bg-white dark:bg-neutral-700
-            text-neutral-900 dark:text-neutral-200
-            placeholder:text-neutral-400
-            {% comment %} focus:ring-2 focus:ring-blue-500/50  {% endcomment %}
-            focus:dark:border-neutral-100
-            focus:border-neutral-600
+            class="w-full pl-6 pr-14 py-4
+            rounded-2xl border-2 border-primary-100 dark:border-gray-700
+            bg-white/80 dark:bg-gray-800/80 backdrop-blur-md
+            text-gray-900 dark:text-white text-lg
+            placeholder:text-gray-400 dark:placeholder:text-gray-500
+            shadow-lg shadow-primary-200/50 dark:shadow-primary-800/50
+            transform hover:shadow-xl hover:ring-4 hover:ring-primary-500/10
+            focus:ring-4 focus:ring-primary-500/10
             transition-all duration-300"
         >
 
-        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-neutral-500 dark:text-neutral-400 transition-colors">
-        <span class="sr-only">Search</span>
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-        </svg>
+        <!-- Search Button -->
+        <button type="submit" 
+                class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl 
+                       text-primary-500 dark:text-primary-400 
+                       hover:text-white dark:hover:text-white
+                       transition-all duration-200">
+            <span class="sr-only">Search</span>
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
         </button>
     </div>
 </form>
