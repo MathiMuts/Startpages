@@ -15,12 +15,12 @@
     <div class="snap-start min-h-screen flex flex-col justify-center items-center w-full relative py-12">
         
         <!-- Search Bar Container -->
-        <div class="w-full max-w-2xl px-4 z-10 mb-12 pt-60 pb-40 transform transition-all hover:scale-[1.01]">
+        <div class="w-full max-w-2xl px-4 z-10 mb-52 mt-60 transform transition-all hover:scale-[1.01]">
             {% include "../../components/_search-bar.html" %}
         </div>
 
         <!-- Preview Row -->
-        <div class="w-full px-4 mb-8"> 
+        <div class="w-full px-4 mb-4"> 
              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
                         w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392
                         gap-8 mx-auto p-4">
@@ -54,7 +54,25 @@
             {% for sec in sections %}
                 {% include "../../components/_section.html" with section=sec %}
             {% endfor %}
-            
+
+            <button onclick="openAddSectionModal()"
+                    class="hidden edit-mode-visible
+                        h-[30rem] w-full cursor-pointer
+                        add-section-btn 
+                        flex-col justify-center items-center gap-4
+                        rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700
+                        bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800
+                        text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400
+                        hover:border-primary-400 dark:hover:border-primary-500
+                        transition-all duration-300 group">
+                
+                <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <span class="font-bold text-lg">Add Section</span>
+            </button>
         </div>
     </div>
 

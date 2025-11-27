@@ -1,5 +1,6 @@
+// startpages/static/js/startpage_logic.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize logic to mark full sections immediately on load
     document.querySelectorAll('.section-links').forEach(container => {
         checkLinkLimit(container);
     });
@@ -41,10 +42,13 @@ function initSortables() {
 
     if (gridContainer) {
         sectionSortable = new Sortable(gridContainer, {
-            animation: 350, // Increased to 350ms for smoother shuffling
+            animation: 350,
             disabled: true, 
+            draggable: ".draggable-section",
             handle: '.section-header',
-            ghostClass: 'sortable-ghost', // Explicitly add ghost class
+            ghostClass: 'sortable-ghost',
+            filter: ".add-section-btn",
+            preventOnFilter: false,
             onEnd: function (evt) {
                 saveSectionOrder();
             }
@@ -52,50 +56,44 @@ function initSortables() {
     }
 
     linkContainers.forEach(container => {
-        const sortable = new Sortable(container, {
-            group: 'links', 
-            animation: 150,
-            disabled: true, 
-            fallbackOnBody: true,
-            swapThreshold: 0.65,
-            ghostClass: 'sortable-ghost',
-            
-            // --- BLOCK DROPPING IF FULL ---
-            onMove: function (evt) {
-                if (evt.from === evt.to) return true;
-
-                // If target list is marked as full, block entry
-                if (evt.to.classList.contains('section-full')) {
-                    return false; 
-                }
-                
-                return true;
-            },
-
-            // Track Dragging State for CSS
-            onStart: function() {
-                document.body.classList.add('dragging-active');
-            },
-            onEnd: function (evt) {
-                document.body.classList.remove('dragging-active');
-                
-                const targetList = evt.to; 
-                const sectionId = targetList.getAttribute('data-section-id');
-                
-                // Update State (Button visibility + Full Class)
-                checkLinkLimit(evt.from);
-                if (evt.from !== evt.to) {
-                    checkLinkLimit(evt.to);
-                }
-
-                saveLinkOrder(sectionId, targetList);
-            }
-        });
-        linkSortables.push(sortable);
+        initSingleLinkSortable(container);
     });
 }
 
-// Logic to check limits and update UI classes
+function initSingleLinkSortable(container) {
+    const sortable = new Sortable(container, {
+        group: 'links', 
+        animation: 150,
+        disabled: !isEditMode, 
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+        ghostClass: 'sortable-ghost',
+        
+        onMove: function (evt) {
+            if (evt.from === evt.to) return true;
+            if (evt.to.classList.contains('section-full')) {
+                return false; 
+            }
+            return true;
+        },
+
+        onStart: function() {
+            document.body.classList.add('dragging-active');
+        },
+        onEnd: function (evt) {
+            document.body.classList.remove('dragging-active');
+            
+            checkLinkLimit(evt.from);
+            if (evt.from !== evt.to) {
+                checkLinkLimit(evt.to);
+            }
+
+            saveLinkOrder(evt.to.getAttribute('data-section-id'), evt.to);
+        }
+    });
+    linkSortables.push(sortable);
+}
+
 function checkLinkLimit(container) {
     if (!container) return;
     const sectionId = container.getAttribute('data-section-id');
@@ -103,13 +101,10 @@ function checkLinkLimit(container) {
     
     const addBtn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
     
-    // 1. Handle visibility limit (Max 10)
-    // If full, hide EVERYTHING (button) regardless of drag state
     if (count >= 10) {
         if (addBtn) addBtn.style.setProperty('display', 'none', 'important');
         container.classList.add('section-full');
     } else {
-        // If not full, remove inline styles so CSS classes (dragging-active) can take over
         if (addBtn) addBtn.style.removeProperty('display');
         container.classList.remove('section-full');
     }
@@ -119,7 +114,6 @@ function checkLinkLimit(container) {
 function initInteractionListeners() {
     const appContainer = document.querySelector('body');
 
-    // Start press: Track time for Short Click vs Long Hold logic
     const startHandler = (e) => {
         clickStartTime = Date.now();
         handleStartPress(e);
@@ -134,7 +128,6 @@ function initInteractionListeners() {
     appContainer.addEventListener('touchmove', handleCancelPress);
 
     appContainer.addEventListener('click', (e) => {
-        // 1. Prevent 'mouseup' from a long press entering edit mode from triggering a click immediately
         if (ignoreNextClick) {
             ignoreNextClick = false;
             e.preventDefault();
@@ -142,14 +135,12 @@ function initInteractionListeners() {
             return;
         }
 
-        // Add Button Click (Handled via onclick attribute, but ensure propagation stops if needed)
-        if (e.target.closest('.static-add-btn')) {
+        if (e.target.closest('.static-add-btn') || e.target.closest('.add-section-btn')) {
             return;
         }
-
+        
         if (!isEditMode) return;
 
-        // 2. Logic: If click duration > 200ms, it was a drag, NOT a click. Do not open modal.
         const duration = Date.now() - clickStartTime;
         if (duration > 200) {
             return; 
@@ -158,16 +149,11 @@ function initInteractionListeners() {
         const sectionEl = e.target.closest('.draggable-section');
         const linkEl = e.target.closest('.draggable-link');
         
-        // Modal Check:
         const isModal = e.target.closest('#edit-modal');
         const isModalCard = e.target.closest('#edit-modal-card'); 
 
-        // CRITICAL: If we are interacting with the modal card, DO NOTHING.
-        if (isModalCard) {
-            return;
-        }
+        if (isModalCard) return;
 
-        // CASE A: Clicked on a Link -> Edit Link
         if (linkEl) {
             e.preventDefault();
             e.stopPropagation(); 
@@ -175,15 +161,13 @@ function initInteractionListeners() {
             return;
         }
 
-        // CASE B: Clicked ANYWHERE on a Section (that isn't a link) -> Edit Section
         if (sectionEl) {
             e.preventDefault();
             openEditModal('section', sectionEl.getAttribute('data-id'));
             return;
         } 
 
-        // CASE C: Exit Edit Mode if background clicked
-        if (!isModal) {
+        if (!isModal && !e.target.closest('button')) {
             toggleEditMode(false);
         }
     });
@@ -260,6 +244,8 @@ const modal = document.getElementById('edit-modal');
 const form = document.getElementById('edit-form');
 const urlGroup = document.getElementById('url-field-group');
 const modalTitle = document.getElementById('modal-title');
+const deleteBtn = document.getElementById('btn-delete');
+const cancelBtn = document.getElementById('btn-cancel');
 
 function initModalLogic() {
     form.addEventListener('submit', (e) => {
@@ -268,15 +254,22 @@ function initModalLogic() {
         const type = document.getElementById('edit-type').value;
         if (type === 'new_link') {
             saveNewLink();
+        } else if (type === 'new_section') {
+            saveNewSection();
         } else {
             saveItemDetails();
         }
     });
+
+    initDeleteButtonLogic();
 }
 
-// Open modal for editing existing items
 function openEditModal(type, id) {
     modalTitle.innerText = type === 'section' ? 'Edit Section' : 'Edit Link';
+    
+    // SWAP BUTTONS: Show Delete, Hide Cancel
+    deleteBtn.classList.remove('hidden');
+    cancelBtn.classList.add('hidden');
     
     fetch(`/api/get-item-details/?type=${type}&id=${id}`)
         .then(response => response.json())
@@ -288,8 +281,10 @@ function openEditModal(type, id) {
             if (type === 'link') {
                 urlGroup.style.display = 'block';
                 document.getElementById('edit-url').value = data.url;
+                document.getElementById('edit-url').required = true;
             } else {
                 urlGroup.style.display = 'none';
+                document.getElementById('edit-url').required = false;
             }
 
             modal.classList.remove('hidden');
@@ -297,29 +292,182 @@ function openEditModal(type, id) {
         .catch(err => console.error(err));
 }
 
-// Open modal for adding a new link
 window.openAddLinkModal = function(sectionId) {
     modalTitle.innerText = 'Add New Link';
-    document.getElementById('edit-id').value = sectionId; // Store section ID here for reference
+    document.getElementById('edit-id').value = sectionId;
     document.getElementById('edit-type').value = 'new_link';
     
+    // SWAP BUTTONS: Hide Delete, Show Cancel
+    deleteBtn.classList.add('hidden');
+    cancelBtn.classList.remove('hidden');
+
     document.getElementById('edit-name').value = '';
     document.getElementById('edit-url').value = '';
+    document.getElementById('edit-url').required = true;
     urlGroup.style.display = 'block';
     
     modal.classList.remove('hidden');
-    // Ensure edit mode stays active visually just in case
+    toggleEditMode(true);
+}
+
+window.openAddSectionModal = function() {
+    modalTitle.innerText = 'Add New Section';
+    document.getElementById('edit-type').value = 'new_section';
+    document.getElementById('edit-id').value = ''; 
+    
+    // SWAP BUTTONS: Hide Delete, Show Cancel
+    deleteBtn.classList.add('hidden');
+    cancelBtn.classList.remove('hidden');
+
+    document.getElementById('edit-name').value = '';
+    
+    urlGroup.style.display = 'none';
+    document.getElementById('edit-url').required = false;
+    
+    modal.classList.remove('hidden');
     toggleEditMode(true);
 }
 
 function closeEditModal() {
     modal.classList.add('hidden');
+    resetDeleteButton();
 }
 
-// Save existing item (Edit)
+// --- HOLD TO DELETE LOGIC ---
+
+let deleteHoldTimer = null;
+let isDeleteReady = false;
+const HOLD_DURATION = 1500; 
+
+function initDeleteButtonLogic() {
+    const btn = document.getElementById('btn-delete');
+    
+    btn.addEventListener('mousedown', handleHoldStart);
+    btn.addEventListener('mouseup', handleHoldEnd);
+    btn.addEventListener('mouseleave', handleHoldCancel);
+    
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleHoldStart(e); });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); handleHoldEnd(e); });
+}
+
+function handleHoldStart(e) {
+    if (e.button !== 0 && e.type !== 'touchstart') return; 
+
+    const btn = document.getElementById('btn-delete');
+    const fill = document.getElementById('btn-delete-fill');
+    const text = document.getElementById('btn-delete-text');
+
+    isDeleteReady = false;
+    
+    text.innerText = "Hold...";
+    text.classList.add('text-red-700', 'dark:text-white');
+
+    fill.style.transition = `width ${HOLD_DURATION}ms linear`;
+    fill.style.width = '100%';
+    fill.classList.remove('opacity-20'); 
+    fill.classList.add('opacity-100');
+
+    deleteHoldTimer = setTimeout(() => {
+        isDeleteReady = true;
+        text.innerText = "Delete!";
+        btn.classList.add('scale-105');
+    }, HOLD_DURATION);
+}
+
+function handleHoldEnd(e) {
+    if (isDeleteReady) {
+        deleteItem();
+        resetDeleteButton(); 
+    } else {
+        handleHoldCancel();
+    }
+}
+
+function handleHoldCancel() {
+    clearTimeout(deleteHoldTimer);
+    isDeleteReady = false;
+    resetDeleteButton();
+}
+
+function resetDeleteButton() {
+    const btn = document.getElementById('btn-delete');
+    const fill = document.getElementById('btn-delete-fill');
+    const text = document.getElementById('btn-delete-text');
+
+    clearTimeout(deleteHoldTimer);
+
+    if (fill) {
+        fill.style.transition = 'width 0.2s ease-out';
+        fill.style.width = '0%';
+        fill.classList.remove('opacity-100');
+        fill.classList.add('opacity-20');
+    }
+
+    if (text) {
+        text.innerText = "Delete";
+        text.classList.remove('text-red-700', 'dark:text-white');
+    }
+    
+    if (btn) btn.classList.remove('scale-105');
+}
+
+// --- Deletion Logic ---
+
+window.deleteItem = function() {
+    const type = document.getElementById('edit-type').value;
+    const id = document.getElementById('edit-id').value;
+    
+    const btnText = document.getElementById('btn-delete-text');
+    if(btnText) btnText.innerText = "Deleting...";
+
+    fetch('/api/delete-item/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ type: type, id: id })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.status === 'success') {
+            closeEditModal();
+            removeItemFromDom(type, id);
+            showToast('Deleted successfully');
+        } else {
+            showToast('Error deleting item', 'error');
+            resetDeleteButton();
+        }
+    })
+    .catch(() => {
+        showToast('Network error', 'error');
+        resetDeleteButton();
+    });
+}
+
+function removeItemFromDom(type, id) {
+    if (type === 'section') {
+        const el = document.querySelector(`.draggable-section[data-id="${id}"]`);
+        if (el) el.remove();
+    } else if (type === 'link') {
+        const el = document.querySelector(`.draggable-link[data-id="${id}"]`);
+        if (el) {
+            const container = el.closest('.section-links');
+            el.remove();
+            if (container) checkLinkLimit(container);
+        }
+    }
+}
+
+// --- Saving Logic ---
+
 function saveItemDetails() {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
+
+    // Protocol Check
+    if (data.type === 'link' && data.url) {
+        if (!/^https?:\/\//i.test(data.url)) {
+            data.url = 'https://' + data.url;
+        }
+    }
 
     fetch('/api/save-item-details/', {
         method: 'POST',
@@ -339,11 +487,15 @@ function saveItemDetails() {
     .catch(() => showToast('Network error', 'error'));
 }
 
-// Create new link (Add)
 function saveNewLink() {
     const sectionId = document.getElementById('edit-id').value;
     const name = document.getElementById('edit-name').value;
-    const url = document.getElementById('edit-url').value;
+    let url = document.getElementById('edit-url').value;
+
+    // Protocol Check
+    if (url && !/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+    }
 
     fetch('/api/add-link/', {
         method: 'POST',
@@ -363,29 +515,116 @@ function saveNewLink() {
     .catch(() => showToast('Network error', 'error'));
 }
 
+function saveNewSection() {
+    const name = document.getElementById('edit-name').value;
+
+    fetch('/api/add-section/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.status === 'success') {
+            closeEditModal();
+            appendNewSection(response.section);
+            showToast('Section created successfully!');
+        } else {
+            showToast(response.message || 'Error adding section', 'error');
+        }
+    })
+    .catch(() => showToast('Network error', 'error'));
+}
+
 function appendNewLink(sectionId, linkData) {
     const container = document.querySelector(`.section-links[data-section-id="${sectionId}"]`);
     if (!container) return;
 
     const div = document.createElement('div');
-    // Match the classes from _section.html (ensure consistent gap/visuals + border-transparent)
-    div.className = "draggable-link relative px-3 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 group-hover:bg-opacity-50 transition-colors duration-150 border border-transparent";
+    div.className = "draggable-link relative rounded-md group/link transition-all duration-200 border border-transparent";
     div.setAttribute('data-id', linkData.id);
     
     div.innerHTML = `
         <a href="${linkData.url}" target="_blank"
-           class="edit-mode-disable block text-neutral-700 dark:text-neutral-400 hover:underline truncate"
+           class="edit-mode-disable flex items-center gap-2 px-3 py-1.5 
+                  text-gray-600 dark:text-gray-300 
+                  hover:bg-primary-50 dark:hover:bg-primary-900/20 
+                  hover:text-primary-700 dark:hover:text-primary-300
+                  rounded-md transition-colors"
            data-edit-target="name">
-           ${linkData.name}
+           <span class="text-primary-400 opacity-0 -ml-2 group-hover/link:opacity-100 group-hover/link:ml-0 transition-all duration-200 text-xs font-bold">›</span>
+           <span class="truncate font-medium text-sm overflow-ellipsis">${linkData.name}</span>
         </a>
-        <div class="absolute inset-0 hidden edit-mode-overlay cursor-grab active:cursor-grabbing z-10"></div>
+        <div class="absolute inset-0 hidden edit-mode-overlay cursor-grab active:cursor-grabbing z-10 bg-white/10"></div>
     `;
 
-    container.appendChild(div);
+    const btnContainer = document.getElementById(`add-btn-container-${sectionId}`);
+    if (btnContainer) {
+        container.insertBefore(div, btnContainer);
+    } else {
+        container.appendChild(div);
+    }
+    
     checkLinkLimit(container);
 }
 
-// Update DOM without reload (Edit)
+function appendNewSection(sectionData) {
+    const grid = document.getElementById('grid-container');
+    const addButton = document.querySelector('.add-section-btn'); 
+
+    const sectionEl = document.createElement('section');
+    
+    sectionEl.className = `
+           draggable-section 
+           bg-white dark:bg-gray-800 
+           container px-5 pt-4 pb-1 flex flex-col gap-3 rounded-xl
+           text-neutral-900 dark:text-neutral-200 w-full relative group
+           select-none h-[30rem]
+           border-t-4 border-primary-500 dark:border-primary-400
+           shadow-xl shadow-primary-100/50 dark:shadow-none
+           transition-all duration-300 hover:shadow-2xl hover:shadow-primary-200/50 dark:hover:shadow-black/30
+    `;
+    sectionEl.setAttribute('data-id', sectionData.id);
+
+    sectionEl.innerHTML = `
+        <div class="flex justify-between items-center section-header pb-2 border-b border-gray-100 dark:border-gray-700 cursor-grab active:cursor-grabbing">
+            <h2 class="text-xl font-bold truncate pointer-events-none text-gray-800 dark:text-gray-100 tracking-tight" data-edit-target="name">
+                ${sectionData.name}
+            </h2>
+            <a href="#" onclick="openAllLinksInSection(this); return false;" 
+               class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 edit-mode-hidden transition-colors p-1 rounded-md hover:bg-primary-50 dark:hover:bg-primary-900/30">
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+            <div class="hidden edit-mode-visible text-primary-500 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-1 flex-grow overflow-hidden">
+            <div class="flex flex-col gap-1.5 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar p-1" data-section-id="${sectionData.id}">
+                <div id="add-btn-container-${sectionData.id}" class="group/add">
+                    <button onclick="openAddLinkModal('${sectionData.id}')"
+                            class="static-add-btn w-full text-left hidden edit-mode-visible cursor-pointer items-center gap-2 px-3 py-1.5 rounded-md border border-transparent text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all">
+                        <span class="flex items-center justify-center w-4 h-4 -ml-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                        </span>
+                        <span class="text-sm font-bold opacity-80 group-hover/add:opacity-100">Add Link</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (addButton) {
+        grid.insertBefore(sectionEl, addButton);
+    } else {
+        grid.appendChild(sectionEl);
+    }
+    
+    const newLinkContainer = sectionEl.querySelector('.section-links');
+    initSingleLinkSortable(newLinkContainer);
+}
+
 function updateUiItem(data) {
     if (data.type === 'section') {
         const section = document.querySelector(`.draggable-section[data-id="${data.id}"]`);
@@ -398,14 +637,15 @@ function updateUiItem(data) {
         if (linkWrapper) {
             const anchor = linkWrapper.querySelector('a');
             if (anchor) {
-                anchor.innerText = data.name;
+                const textSpan = anchor.querySelector('.truncate');
+                if(textSpan) textSpan.innerText = data.name;
+                
                 anchor.href = data.url;
             }
         }
     }
 }
 
-// --- 6. Toast Notification System ---
 function showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');

@@ -22,7 +22,10 @@ urlpatterns = [
     path('api/get-item-details/', api.get_item_details, name='get_item_details'),
     path('api/save-item-details/', api.save_item_details, name='save_item_details'),
     path('api/add-link/', api.add_link, name='add_link'),
+    path('api/add-section/', api.add_section, name='add_section'),
+    path('api/add-section/', api.add_section, name='add_section'),
+    path('api/delete-item/', api.delete_item, name='delete_item'),
     
     # User specific page
-    path('<str:username>/<slug:slug>/', views.index, name='detail'),
+    path('<str:username>/<slug:slug>/', views.index, name='detail')
 ]

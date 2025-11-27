@@ -5,9 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Section, Link
-
-# INFO: --- API Views ---
+from django.db import models
+from .models import Section, Link, StartPage
 
 @login_required
 @require_POST
@@ -109,3 +108,55 @@ def add_link(request):
             'url': new_link.url
         }
     })
+
+@login_required
+@require_POST
+def add_section(request):
+    data = json.loads(request.body)
+    name = data.get('name')
+    
+    if not name:
+        return JsonResponse({'status': 'error', 'message': 'Name is required'}, status=400)
+
+    # Find current page: Default, or first available
+    page = StartPage.objects.filter(user=request.user, is_default=True).first()
+    if not page:
+        page = StartPage.objects.filter(user=request.user).first()
+        
+    if not page:
+        return JsonResponse({'status': 'error', 'message': 'No startpage found'}, status=404)
+
+    max_order = page.sections.aggregate(models.Max('order'))['order__max']
+    new_order = (max_order + 1) if max_order is not None else 0
+
+    new_section = Section.objects.create(
+        page=page,
+        name=name,
+        order=new_order
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'section': {
+            'id': new_section.id,
+            'name': new_section.name
+        }
+    })
+
+@login_required
+@require_POST
+def delete_item(request):
+    data = json.loads(request.body)
+    item_type = data.get('type')
+    item_id = data.get('id')
+    
+    if item_type == 'section':
+        item = get_object_or_404(Section, id=item_id, page__user=request.user)
+        item.delete()
+    elif item_type == 'link':
+        item = get_object_or_404(Link, id=item_id, section__page__user=request.user)
+        item.delete()
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid type'}, status=400)
+        
+    return JsonResponse({'status': 'success'})
