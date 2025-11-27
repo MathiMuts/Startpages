@@ -25,7 +25,7 @@ def index(request, username=None, slug=None):
         # If user is logged in but has NO pages, redirect to profile to create one
         if request.user.is_authenticated:
              return redirect('startpages:profile')
-        return render(request, 'startpages/pages/404.html')
+        return render(request, 'status/404.html')
 
     sections = page.sections.prefetch_related('links').all()
 
