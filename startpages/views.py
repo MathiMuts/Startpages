@@ -21,11 +21,8 @@ def index(request, username=None, slug=None):
         if not page:
             page = StartPage.objects.filter(user=request.user).first()
     
-    if not page:
-        # If user is logged in but has NO pages, redirect to profile to create one
-        if request.user.is_authenticated:
-             return redirect('startpages:profile')
-        return render(request, 'status/404.html')
+    if not request.user.is_authenticated:
+        return render(request, 'startpages/pages/index.html')
 
     sections = page.sections.prefetch_related('links').all()
 
