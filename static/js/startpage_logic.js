@@ -646,27 +646,5 @@ function updateUiItem(data) {
     }
 }
 
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    
-    const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-    toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-10 opacity-0 flex items-center gap-2`;
-    toast.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}"></path></svg>
-        <span class="font-medium text-sm">${message}</span>
-    `;
-
-    container.appendChild(toast);
-
-    requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-10', 'opacity-0');
-    });
-
-    setTimeout(() => {
-        toast.classList.add('translate-y-10', 'opacity-0');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
+// NOTE: showToast function is now in _base.html to be global
 window.closeEditModal = closeEditModal;
