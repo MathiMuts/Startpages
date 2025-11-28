@@ -43,7 +43,7 @@
     <div class="flex flex-col gap-1 flex-grow overflow-hidden">
         
         <!-- Links Sortable Container -->
-        <div class="flex flex-col gap-1.5 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar p-1" 
+        <div class="flex flex-col gap-1.5 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar px-1" 
              {% if not is_preview %}data-section-id="{{ section.id }}"{% endif %}>
             
             {% for link in section.links.all %}
@@ -98,7 +98,7 @@
             <div id="add-btn-container-{{ section.id }}" class="group/add px-1 pb-1">
                 <button onclick="openAddLinkModal('{{ section.id }}')"
                         class="static-add-btn w-full text-left cursor-pointer
-                            flex items-center gap-3 px-3 py-2
+                            flex items-center gap-3 px-3 py-1.5 mb-4
                             rounded-md border border-transparent
                             text-gray-400 hover:text-primary-600 dark:hover:text-primary-300 
                             hover:bg-primary-50 dark:hover:bg-primary-900/30
