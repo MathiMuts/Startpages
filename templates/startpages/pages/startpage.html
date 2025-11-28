@@ -103,7 +103,6 @@
         border-width: 2px !important;
         background-color: var(--color-primary-50);
         box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
-        /* Ensure cursor indicates movement */
         cursor: grab; 
     }
     .edit-mode-active .draggable-section:active {
@@ -134,16 +133,33 @@
     /* Hide the 'Add Link' text buttons during drag to reduce visual noise */
     body.dragging-active .static-add-btn { opacity: 0; pointer-events: none; }
 
+    /* --- EXPAND DROP ZONES (FIXED) --- */
+    
+    /* 1. HIDE the entire button container wrapper when dragging links */
+    /* Note: .group\/add escapes the slash in the class name "group/add" */
+    body.dragging-link-active .group\/add {
+        display: none !important;
+    }
+    
+    /* 2. FORCE the section-links container to fill the remaining space */
+    body.dragging-link-active .section-links {
+        flex-grow: 1 !important;
+        height: 100% !important; /* Force full available height */
+        min-height: 0 !important; /* Allow shrinking if necessary, though flex-grow pushes it */
+        background-color: rgba(0,0,0,0.02); /* Visual indicator */
+        overflow-y: auto !important; /* Ensure scroll works if it truly overflows */
+    }
+    
+    body.dragging-link-active.dark .section-links {
+        background-color: rgba(255,255,255,0.02);
+    }
+
     /* --- Dragging Physics & Visuals --- */
 
-    /* 
-       Ghost: The placeholder in the list where the item will drop. 
-       We make it transparent so the "sliding" animation of other items is clear.
-    */
+    /* Ghost */
     .sortable-ghost {
         opacity: 0.2 !important;
         background: var(--color-primary-200) !important;
-        /* Match the edit-mode border to prevent layout shifts */
         border: 2px dashed var(--color-primary-500) !important;
     }
     .dark .sortable-ghost {
@@ -152,12 +168,12 @@
         opacity: 0.3 !important;
     }
 
-    /* Chosen: The actual item being dragged (if forceFallback is false) */
+    /* Chosen */
     .sortable-drag {
         opacity: 1 !important;
         background: white; 
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        transform: scale(1.02); /* Slight pop */
+        transform: scale(1.02); 
     }
     .dark .sortable-drag {
         background: #1f2937; /* gray-800 */

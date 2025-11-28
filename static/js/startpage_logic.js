@@ -93,12 +93,17 @@ function initSingleLinkSortable(container) {
         
         onMove: function (evt) {
             // Prevent dropping into a full section
-            // Note: We don't need to check for the button anymore as it's outside this container
             return evt.from === evt.to || !evt.to.classList.contains('section-full');
         },
-        onStart: function() { document.body.classList.add('dragging-active'); },
+        onStart: function() { 
+            // Add classes immediately to trigger CSS layout changes (removing buttons, expanding lists)
+            document.body.classList.add('dragging-active');
+            document.body.classList.add('dragging-link-active'); 
+        },
         onEnd: function (evt) {
             document.body.classList.remove('dragging-active');
+            document.body.classList.remove('dragging-link-active');
+            
             checkLinkLimit(evt.from);
             if (evt.from !== evt.to) checkLinkLimit(evt.to);
             saveLinkOrder(evt.to.getAttribute('data-section-id'), evt.to);
@@ -666,7 +671,7 @@ function appendNewSection(sectionData) {
         </div>
     </div>
     <div class="flex flex-col gap-1 flex-grow overflow-hidden">
-        <div class="flex flex-col gap-1.5 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar p-1" data-section-id="${sectionData.id}">
+        <div class="flex flex-col gap-1.5 min-h-0 section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar p-1" data-section-id="${sectionData.id}">
         </div>
         <div id="add-btn-container-${sectionData.id}" class="group/add px-1 pb-1">
             <button onclick="openAddLinkModal('${sectionData.id}')"
