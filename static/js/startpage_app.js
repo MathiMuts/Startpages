@@ -95,21 +95,70 @@ function initModalLogic() {
     const delBtn = document.getElementById('btn-delete');
     if(delBtn) {
         let timer;
-        const start = () => {
-            document.getElementById('btn-delete-text').innerText = "Hold...";
-            document.getElementById('btn-delete-fill').style.width = '100%';
+        let isReadyToDelete = false;
+        const fillBar = document.getElementById('btn-delete-fill');
+        const textSpan = document.getElementById('btn-delete-text');
+        const holdDuration = 1500; 
+
+        const start = (e) => {
+            if (e.type === 'mousedown' && e.sourceEvent && e.sourceEvent.type === 'touchstart') return;
+            
+            isReadyToDelete = false;
+            textSpan.innerText = "Hold...";
+            
+            // 1. Reset
+            fillBar.style.transition = 'none';
+            fillBar.style.width = '0%';
+            fillBar.style.opacity = '1'; 
+            
+            // 2. Reflow
+            void fillBar.offsetWidth;
+            
+            // 3. Animate
+            fillBar.style.transition = `width ${holdDuration}ms linear`;
+            fillBar.style.width = '100%';
+            
             timer = setTimeout(() => {
-                API.deleteItem(document.getElementById('edit-type').value, document.getElementById('edit-id').value)
-                   .then(res => { if(res.status==='success'){ closeEditModal(); UI.removeItemFromDom(document.getElementById('edit-type').value, document.getElementById('edit-id').value); showToast('Deleted'); }});
-            }, 1500);
+                isReadyToDelete = true;
+                textSpan.innerText = "Delete!"; 
+            }, holdDuration);
         };
-        const end = () => { clearTimeout(timer); document.getElementById('btn-delete-fill').style.width = '0%'; document.getElementById('btn-delete-text').innerText = "Delete"; };
+
+        const end = (e) => {
+            clearTimeout(timer);
+            
+            // Check if the interaction was canceled by leaving the element or touch cancel
+            const isAborted = e.type === 'mouseleave' || e.type === 'touchcancel';
+
+            if (isReadyToDelete && !isAborted) {
+                API.deleteItem(document.getElementById('edit-type').value, document.getElementById('edit-id').value)
+                   .then(res => { 
+                       if(res.status==='success'){ 
+                           closeEditModal(); 
+                           UI.removeItemFromDom(document.getElementById('edit-type').value, document.getElementById('edit-id').value); 
+                           showToast('Deleted'); 
+                       }
+                   });
+                textSpan.innerText = "Deleting...";
+            } else {
+                // Reset if aborted or released too early
+                textSpan.innerText = "Delete";
+            }
+
+            // Reset Animation
+            fillBar.style.transition = 'width 200ms ease-out, opacity 200ms ease-out';
+            fillBar.style.width = '0%';
+            fillBar.style.opacity = '';
+            isReadyToDelete = false;
+        };
         
         delBtn.addEventListener('mousedown', start);
-        delBtn.addEventListener('touchstart', start);
+        delBtn.addEventListener('touchstart', start, { passive: true });
+        
         delBtn.addEventListener('mouseup', end);
         delBtn.addEventListener('mouseleave', end);
         delBtn.addEventListener('touchend', end);
+        delBtn.addEventListener('touchcancel', end);
     }
 }
 
@@ -121,6 +170,12 @@ window.openEditModal = (type, id) => {
     document.getElementById('btn-cancel').classList.add('hidden');
     document.getElementById('edit-type').value = type;
     document.getElementById('edit-id').value = id;
+
+    // Reset delete button state
+    const textSpan = document.getElementById('btn-delete-text');
+    const fillBar = document.getElementById('btn-delete-fill');
+    if(textSpan) textSpan.innerText = "Delete";
+    if(fillBar) { fillBar.style.width = '0%'; fillBar.style.transition = 'none'; }
 
     API.getItem(type, id).then(data => {
         document.getElementById('edit-name').value = data.name;
