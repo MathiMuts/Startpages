@@ -25,7 +25,7 @@
             
             <!-- 1. List of Current Emails -->
             {% if user.emailaddress_set.all %}
-                <form action="{% url 'account_email' %}" class="email_list" method="post">
+                <form action="{% url 'account_email' %}" class="email_list" method="post" id="email_management_form">
                     {% csrf_token %}
                     
                     <div class="space-y-3 mb-6">
@@ -39,10 +39,11 @@
                             
                             <div class="flex items-center gap-4">
                                 <!-- Radio Selection -->
-                                <input type="radio" name="email" 
+                                <input type="radio" name="email" autocomplete="off"
                                        {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked{% endif %} 
                                        value="{{ emailaddress.email }}" 
-                                       class="w-5 h-5 text-primary-600 border-gray-300 focus:ring-primary-500">
+                                       data-primary="{{ emailaddress.primary|yesno:'true,false' }}"
+                                       class="email-radio w-5 h-5 text-primary-600 border-gray-300 focus:ring-primary-500">
                                 
                                 <div>
                                     <span class="block font-medium text-neutral-900 dark:text-white break-all">
@@ -80,8 +81,25 @@
                         <button type="submit" name="action_send" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors cursor-pointer">
                             Re-send Verification
                         </button>
-                        <button type="submit" name="action_remove" class="flex-1 sm:flex-none px-4 py-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/40 text-sm font-bold rounded-lg transition-colors cursor-pointer">
-                            Remove
+                        
+                        <!-- HOLD TO REMOVE BUTTON -->
+                        <!-- Defaults to hidden if JS fails or loading, handled by init logic -->
+                        <button type="button" id="btn-remove-email"
+                                class="flex-1 sm:flex-none relative overflow-hidden group select-none touch-none
+                                       w-32 sm:w-40 px-4 py-2 rounded-lg text-sm font-bold transition-all
+                                       bg-red-50 text-red-600 border border-red-200 
+                                       hover:border-red-300 dark:bg-red-900/20 dark:border-red-900 dark:text-red-400"
+                                style="-webkit-tap-highlight-color: transparent;">
+                            
+                            <!-- Fill Animation -->
+                            <div id="btn-remove-email-fill" 
+                                 class="absolute inset-y-0 left-0 bg-red-500 dark:bg-red-600 w-0 opacity-20 group-active:opacity-100 pointer-events-none">
+                            </div>
+
+                            <!-- Text -->
+                            <span id="btn-remove-email-text" class="relative z-10 block pointer-events-none whitespace-nowrap">
+                                Remove
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -117,8 +135,8 @@
 </div>
 
 <script>
-    // Style the "Add Email" input field automatically
     document.addEventListener("DOMContentLoaded", function() {
+        // 1. Style the "Add Email" input
         const emailInput = document.querySelector('#add_email_form input[name="email"]');
         if (emailInput) {
             emailInput.placeholder = "Enter new email address...";
@@ -132,6 +150,130 @@
                 'py-2.5', 'px-4', 'transition-colors'
             );
         }
+
+        // 2. Initialize Hold-to-Delete Logic
+        initEmailDeleteLogic();
+
+        // 3. Initialize Primary Email Check Logic (Hides button)
+        initPrimaryCheckLogic();
     });
+
+    // --- PRIMARY CHECK LOGIC ---
+    function initPrimaryCheckLogic() {
+        const radios = document.querySelectorAll('.email-radio');
+        const removeBtn = document.getElementById('btn-remove-email');
+
+        if (!radios.length || !removeBtn) return;
+
+        function updateButtonVisibility() {
+            const selected = document.querySelector('.email-radio:checked');
+            if (selected && selected.getAttribute('data-primary') === 'true') {
+                // HIDE BUTTON if primary
+                removeBtn.classList.add('hidden');
+            } else {
+                // SHOW BUTTON if not primary
+                removeBtn.classList.remove('hidden');
+            }
+        }
+
+        // Run on load
+        updateButtonVisibility();
+
+        // Run on change
+        radios.forEach(radio => {
+            radio.addEventListener('change', updateButtonVisibility);
+        });
+    }
+
+    // --- HOLD TO DELETE LOGIC ---
+    let emailDeleteTimer = null;
+    let isEmailDeleteReady = false;
+    const EMAIL_HOLD_DURATION = 1500; 
+
+    function initEmailDeleteLogic() {
+        const btn = document.getElementById('btn-remove-email');
+        if(!btn) return;
+        
+        btn.addEventListener('mousedown', handleEmailHoldStart);
+        btn.addEventListener('mouseup', handleEmailHoldEnd);
+        btn.addEventListener('mouseleave', handleEmailHoldCancel);
+        
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleEmailHoldStart(e); });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); handleEmailHoldEnd(e); });
+    }
+
+    function handleEmailHoldStart(e) {
+        const btn = document.getElementById('btn-remove-email');
+        
+        // Safety check if hidden/disabled
+        if (btn.classList.contains('hidden')) return;
+        
+        if (e.button !== 0 && e.type !== 'touchstart') return; 
+
+        const fill = document.getElementById('btn-remove-email-fill');
+        const text = document.getElementById('btn-remove-email-text');
+
+        isEmailDeleteReady = false;
+        
+        text.innerText = "Hold...";
+        text.classList.add('text-red-700', 'dark:text-white');
+
+        fill.style.transition = `width ${EMAIL_HOLD_DURATION}ms linear`;
+        fill.style.width = '100%';
+        fill.classList.remove('opacity-20'); 
+        fill.classList.add('opacity-100');
+
+        emailDeleteTimer = setTimeout(() => {
+            isEmailDeleteReady = true;
+            text.innerText = "Release to Delete!";
+            btn.classList.add('scale-105');
+        }, EMAIL_HOLD_DURATION);
+    }
+
+    function handleEmailHoldEnd(e) {
+        if (isEmailDeleteReady) {
+            submitRemoveAction();
+        } else {
+            handleEmailHoldCancel();
+        }
+    }
+
+    function handleEmailHoldCancel() {
+        clearTimeout(emailDeleteTimer);
+        isEmailDeleteReady = false;
+        resetEmailDeleteButton();
+    }
+
+    function resetEmailDeleteButton() {
+        const btn = document.getElementById('btn-remove-email');
+        const fill = document.getElementById('btn-remove-email-fill');
+        const text = document.getElementById('btn-remove-email-text');
+
+        clearTimeout(emailDeleteTimer);
+
+        if (fill) {
+            fill.style.transition = 'width 0.2s ease-out';
+            fill.style.width = '0%';
+            fill.classList.remove('opacity-100');
+            fill.classList.add('opacity-20');
+        }
+
+        if (text) {
+            text.innerText = "Remove";
+            text.classList.remove('text-red-700', 'dark:text-white');
+        }
+        
+        if (btn) btn.classList.remove('scale-105');
+    }
+
+    function submitRemoveAction() {
+        const form = document.getElementById('email_management_form');
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'action_remove';
+        hiddenInput.value = 'true';
+        form.appendChild(hiddenInput);
+        form.submit();
+    }
 </script>
 {% endblock %}
