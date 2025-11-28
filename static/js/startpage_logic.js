@@ -93,6 +93,7 @@ function initSingleLinkSortable(container) {
         
         onMove: function (evt) {
             // Prevent dropping into a full section
+            // Note: We don't need to check for the button anymore as it's outside this container
             return evt.from === evt.to || !evt.to.classList.contains('section-full');
         },
         onStart: function() { document.body.classList.add('dragging-active'); },
@@ -110,6 +111,7 @@ function checkLinkLimit(container) {
     if (!container) return;
     const sectionId = container.getAttribute('data-section-id');
     const count = container.querySelectorAll('.draggable-link').length;
+    // Look for button in the document since it's no longer a child
     const addBtn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
     
     if (addBtn) {
@@ -632,12 +634,8 @@ function appendNewLink(sectionId, linkData) {
         <div class="absolute inset-0 hidden edit-mode-overlay cursor-grab active:cursor-grabbing z-10 bg-white/10"></div>
     `;
 
-    const btnContainer = document.getElementById(`add-btn-container-${sectionId}`);
-    if (btnContainer) {
-        container.insertBefore(div, btnContainer);
-    } else {
-        container.appendChild(div);
-    }
+    // Simply append since the button is no longer in this container
+    container.appendChild(div);
     
     checkLinkLimit(container);
 }
@@ -650,6 +648,7 @@ function appendNewSection(sectionData) {
     section.className = "draggable-section bg-white dark:bg-gray-800 container px-5 pt-4 pb-1 flex flex-col gap-3 rounded-xl text-neutral-900 dark:text-neutral-200 w-full relative group select-none h-[30rem] border-t-4 border-primary-500 dark:border-primary-400 shadow-xl shadow-primary-100/50 dark:shadow-none transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary-200/50 dark:hover:shadow-black/30";
     section.setAttribute('data-id', sectionData.id);
 
+    // Updated HTML structure for the new section
     section.innerHTML = `
     <div class="flex justify-between items-center section-header pb-2 border-b border-gray-100 dark:border-gray-700 cursor-grab active:cursor-grabbing">
         <h2 class="text-xl font-bold truncate pointer-events-none text-gray-800 dark:text-gray-100 tracking-tight" data-edit-target="name">
@@ -668,16 +667,16 @@ function appendNewSection(sectionData) {
     </div>
     <div class="flex flex-col gap-1 flex-grow overflow-hidden">
         <div class="flex flex-col gap-1.5 min-h-[10px] section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar p-1" data-section-id="${sectionData.id}">
-            <div id="add-btn-container-${sectionData.id}" class="group/add mt-1">
-                <button onclick="openAddLinkModal('${sectionData.id}')"
-                        class="static-add-btn w-full text-left cursor-pointer flex items-center gap-3 px-3 py-2 rounded-md border border-transparent text-gray-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all flex"
-                        title="Add Link">
-                    <span class="flex items-center justify-center w-4 h-4">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    </span>
-                    <span class="text-sm font-bold opacity-80 group-hover/add:opacity-100 pt-0.5">Add Link</span>
-                </button>
-            </div>
+        </div>
+        <div id="add-btn-container-${sectionData.id}" class="group/add px-1 pb-1">
+            <button onclick="openAddLinkModal('${sectionData.id}')"
+                    class="static-add-btn w-full text-left cursor-pointer flex items-center gap-3 px-3 py-2 rounded-md border border-transparent text-gray-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all flex"
+                    title="Add Link">
+                <span class="flex items-center justify-center w-4 h-4">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </span>
+                <span class="text-sm font-bold opacity-80 group-hover/add:opacity-100 pt-0.5">Add Link</span>
+            </button>
         </div>
     </div>
     `;
