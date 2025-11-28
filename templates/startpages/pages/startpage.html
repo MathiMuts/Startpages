@@ -5,7 +5,6 @@
 {% block content %}
 
 <!-- Main Background with Gradient -->
-<!-- used primary-50 and primary-950 -->
 <div class="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" 
      id="main-scroll-container">
 
@@ -53,6 +52,7 @@
                 {% include "../../components/_section.html" with section=sec %}
             {% endfor %}
 
+            <!-- Add Section Button -->
             <button onclick="openAddSectionModal()"
                     class="{% if not sections %}flex{% else %}hidden edit-mode-visible{% endif %}
                         h-[30rem] w-full cursor-pointer
@@ -62,7 +62,7 @@
                         bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800
                         text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400
                         hover:border-primary-400 dark:hover:border-primary-500
-                        transition-all duration-300 group">
+                        transition-colors duration-300 group">
                 
                 <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,8 +77,6 @@
 </div>
 
 {% include "../../components/_edit-modal.html" %}
-
-<!-- Toast Container is now in _base.html -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script src="{% static 'js/startpage_logic.js' %}"></script>
@@ -96,42 +94,89 @@
 </script>
 
 <style>
-    /* Edit Mode Visual Cues */
+    /* --- Edit Mode Styles --- */
+    
+    /* 1. Container adjustments */
     .edit-mode-active .draggable-section {
         border-color: var(--color-primary-500) !important;
         border-style: dashed !important;
         border-width: 2px !important;
         background-color: var(--color-primary-50);
-        /* Using primary color for shadow */
         box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        cursor: grab; 
     }
+    .edit-mode-active .draggable-section:active {
+        cursor: grabbing;
+    }
+
     .dark .edit-mode-active .draggable-section {
         background-color: var(--color-primary-950);
     }
 
-    /* Link Borders in Edit Mode */
+    /* 2. Link Styles */
     .edit-mode-active .draggable-link {
         border: 1px dashed var(--color-primary-300);
+        cursor: grab;
     }
     .dark .edit-mode-active .draggable-link {
         border-color: var(--color-primary-700);
     }
-
+    
+    /* 3. Logic Helpers */
+    .edit-mode-active .link-dot { opacity: 1 !important; transform: scale(1) !important; }
+    .edit-mode-active .link-arrow { display: none !important; }
     .edit-mode-active .edit-mode-hidden { display: none !important; }
     .edit-mode-active .edit-mode-visible { display: flex !important; }
     .edit-mode-active .edit-mode-overlay { display: block !important; }
     .edit-mode-active .edit-mode-disable { pointer-events: none; }
-    body.dragging-active .static-add-btn { display: none !important; }
+    
+    /* Hide the 'Add Link' text buttons during drag to reduce visual noise */
+    body.dragging-active .static-add-btn { opacity: 0; pointer-events: none; }
 
-    /* Dragging Ghost State */
+    /* --- EXPAND DROP ZONES (FIXED) --- */
+    
+    /* 1. HIDE the entire button container wrapper when dragging links */
+    /* Note: .group\/add escapes the slash in the class name "group/add" */
+    body.dragging-link-active .group\/add {
+        display: none !important;
+    }
+    
+    /* 2. FORCE the section-links container to fill the remaining space */
+    body.dragging-link-active .section-links {
+        flex-grow: 1 !important;
+        height: 100% !important; /* Force full available height */
+        min-height: 0 !important; /* Allow shrinking if necessary, though flex-grow pushes it */
+        background-color: rgba(0,0,0,0.02); /* Visual indicator */
+        overflow-y: auto !important; /* Ensure scroll works if it truly overflows */
+    }
+    
+    body.dragging-link-active.dark .section-links {
+        background-color: rgba(255,255,255,0.02);
+    }
+
+    /* --- Dragging Physics & Visuals --- */
+
+    /* Ghost */
     .sortable-ghost {
-        opacity: 0.5;
-        background: var(--color-primary-100);
+        opacity: 0.2 !important;
+        background: var(--color-primary-200) !important;
         border: 2px dashed var(--color-primary-500) !important;
     }
     .dark .sortable-ghost {
-        background: var(--color-primary-900);
-        border-color: var(--color-primary-400) !important;
+        background: var(--color-primary-900) !important;
+        border-color: var(--color-primary-500) !important;
+        opacity: 0.3 !important;
+    }
+
+    /* Chosen */
+    .sortable-drag {
+        opacity: 1 !important;
+        background: white; 
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: scale(1.02); 
+    }
+    .dark .sortable-drag {
+        background: #1f2937; /* gray-800 */
     }
 </style>
 {% endblock %}

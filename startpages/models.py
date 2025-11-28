@@ -59,7 +59,8 @@ class Section(models.Model):
 class Link(models.Model):
     section = models.ForeignKey(Section, related_name='links', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    url = models.URLField(max_length=500)    
+    url = models.URLField(max_length=500)
+    color = models.CharField(max_length=7, null=True, blank=True, help_text="Hex color code")
     order = models.PositiveIntegerField(default=0, help_text="Lower numbers appear first")
 
     class Meta:

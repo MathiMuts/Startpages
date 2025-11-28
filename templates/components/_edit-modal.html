@@ -36,16 +36,42 @@
                         <input type="hidden" id="edit-id" name="id">
                         <input type="hidden" id="edit-type" name="type">
 
-                        <!-- Name Input -->
-                        <div>
-                            <label for="edit-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Name
-                            </label>
-                            <input type="text" id="edit-name" name="name" required autocomplete="off"
-                                   class="block w-full rounded-lg border-gray-300 dark:border-gray-600 
-                                          bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white
-                                          shadow-sm focus:border-primary-500 focus:ring-primary-500 
-                                          py-3 px-4 sm:text-sm transition-colors">
+                        <div class="grid grid-cols-4 gap-4">
+                            <!-- Name Input -->
+                            <div class="col-span-3">
+                                <label for="edit-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                                    Name
+                                </label>
+                                <input type="text" id="edit-name" name="name" required autocomplete="off"
+                                       class="block w-full rounded-lg border-gray-300 dark:border-gray-600 
+                                              bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white
+                                              shadow-sm focus:border-primary-500 focus:ring-primary-500 
+                                              py-3 px-4 sm:text-sm transition-colors">
+                            </div>
+
+                            <!-- Color Input (Hex Text + Label Preview) -->
+                            <div id="color-field-group" class="col-span-1">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label for="edit-color" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        Color
+                                    </label>
+                                    <!-- Preview Dot next to Label -->
+                                    <div id="color-preview" 
+                                         class="w-4 h-4 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm transition-colors"
+                                         style="background-color: transparent;">
+                                    </div>
+                                </div>
+                                
+                                <input type="text" id="edit-color" name="color"
+                                       maxlength="7"
+                                       placeholder="Default"
+                                       autocomplete="off"
+                                       class="block w-full rounded-lg border-gray-300 dark:border-gray-600 
+                                              bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white
+                                              shadow-sm focus:border-primary-500 focus:ring-primary-500 
+                                              py-3 px-3 sm:text-sm transition-colors uppercase tracking-wider font-mono text-center"
+                                       oninput="sanitizeColorInput(this)">
+                            </div>
                         </div>
 
                         <!-- URL Input -->
@@ -57,8 +83,6 @@
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <span class="text-gray-500 sm:text-sm">https://</span>
                                 </div>
-                                <!-- Changed type="url" to type="text" to prevent browser validation blocking 'google.com' -->
-                                <!-- Added inputmode="url" so mobile keyboards still show appropriate layout -->
                                 <input type="text" inputmode="url" id="edit-url" name="url" autocomplete="off"
                                        class="block w-full rounded-lg border-gray-300 dark:border-gray-600 
                                               bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white
