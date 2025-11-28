@@ -78,16 +78,17 @@
             {% if not is_preview %}
                 <div id="add-btn-container-{{ section.id }}" class="group/add">
                     <button onclick="openAddLinkModal('{{ section.id }}')"
-                            class="static-add-btn w-full text-left hidden edit-mode-visible cursor-pointer
+                            class="static-add-btn w-full text-left cursor-pointer
                                 items-center gap-2 px-3 py-1.5
                                 rounded-md border border-transparent
                                 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200 
                                 hover:bg-primary-50 dark:hover:bg-primary-900/30
-                                transition-all"
+                                transition-all
+                                {% if not section.links.all %}flex{% else %}hidden edit-mode-visible{% endif %}"
                             title="Add Link"
                             {% if section.links.count >= 10 %}style="display:none !important"{% endif %}>
                             
-                        <!-- Icon aligned exactly where the chevron/text starts in links -->
+                        <!-- Icon -->
                         <span class="flex items-center justify-center w-4 h-4 -ml-0.5">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                         </span>

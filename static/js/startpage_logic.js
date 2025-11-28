@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
         checkLinkLimit(container);
     });
 
+    checkSectionEmptyState();
+
     initSortables();
     initInteractionListeners();
     initModalLogic();
@@ -101,12 +103,40 @@ function checkLinkLimit(container) {
     
     const addBtn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
     
-    if (count >= 10) {
-        if (addBtn) addBtn.style.setProperty('display', 'none', 'important');
-        container.classList.add('section-full');
-    } else {
-        if (addBtn) addBtn.style.removeProperty('display');
-        container.classList.remove('section-full');
+    if (addBtn) {
+        if (count >= 10) {
+            addBtn.style.setProperty('display', 'none', 'important');
+            container.classList.add('section-full');
+        } else {
+            addBtn.style.removeProperty('display');
+            container.classList.remove('section-full');
+            
+            if (count === 0) {
+                addBtn.classList.remove('hidden', 'edit-mode-visible');
+                addBtn.classList.add('flex');
+            } else {
+                addBtn.classList.add('hidden', 'edit-mode-visible');
+                addBtn.classList.remove('flex');
+            }
+        }
+    }
+}
+
+function checkSectionEmptyState() {
+    const grid = document.getElementById('grid-container');
+    if (!grid) return;
+    
+    const count = grid.querySelectorAll('.draggable-section').length;
+    const addSectionBtn = grid.querySelector('.add-section-btn');
+    
+    if (addSectionBtn) {
+        if (count === 0) {
+            addSectionBtn.classList.remove('hidden', 'edit-mode-visible');
+            addSectionBtn.classList.add('flex');
+        } else {
+            addSectionBtn.classList.add('hidden', 'edit-mode-visible');
+            addSectionBtn.classList.remove('flex');
+        }
     }
 }
 
@@ -445,7 +475,10 @@ window.deleteItem = function() {
 function removeItemFromDom(type, id) {
     if (type === 'section') {
         const el = document.querySelector(`.draggable-section[data-id="${id}"]`);
-        if (el) el.remove();
+        if (el) {
+            el.remove();
+            checkSectionEmptyState();
+        }
     } else if (type === 'link') {
         const el = document.querySelector(`.draggable-link[data-id="${id}"]`);
         if (el) {
@@ -623,6 +656,8 @@ function appendNewSection(sectionData) {
     
     const newLinkContainer = sectionEl.querySelector('.section-links');
     initSingleLinkSortable(newLinkContainer);
+
+    checkSectionEmptyState();
 }
 
 function updateUiItem(data) {
