@@ -53,6 +53,13 @@ window.openPageEditModal = (button) => {
     document.getElementById('page-edit-form').action = `/profile/page/${id}/edit/`;
     document.getElementById('page-delete-form').action = `/profile/page/${id}/delete/`;
     document.getElementById('edit-page-export-btn').href = `/profile/page/${id}/export/`;
+    
+    // Reset delete button state
+    const textSpan = document.getElementById('btn-delete-page-text');
+    const fillBar = document.getElementById('btn-delete-page-fill');
+    if(textSpan) textSpan.innerText = "Delete";
+    if(fillBar) { fillBar.style.width = '0%'; fillBar.style.transition = 'none'; }
+    
     document.getElementById('page-edit-modal').classList.remove('hidden');
 };
 
@@ -61,21 +68,61 @@ window.closePageEditModal = () => document.getElementById('page-edit-modal').cla
 function initPageDeleteLogic() {
     const btn = document.getElementById('btn-delete-page');
     if(!btn) return;
+    
     let timer;
-    const start = () => {
-        document.getElementById('btn-delete-page-text').innerText = "Hold...";
-        document.getElementById('btn-delete-page-fill').style.width = '100%';
-        timer = setTimeout(() => document.getElementById('page-delete-form').submit(), 5000);
+    let isReadyToDelete = false;
+    const fillBar = document.getElementById('btn-delete-page-fill');
+    const textSpan = document.getElementById('btn-delete-page-text');
+    const holdDuration = 1500; 
+
+    const start = (e) => {
+        if (e.type === 'mousedown' && e.sourceEvent && e.sourceEvent.type === 'touchstart') return;
+        
+        isReadyToDelete = false;
+        textSpan.innerText = "Hold...";
+        
+        // 1. Reset
+        fillBar.style.transition = 'none';
+        fillBar.style.width = '0%';
+        fillBar.style.opacity = '1'; 
+        
+        // 2. Reflow
+        void fillBar.offsetWidth;
+        
+        // 3. Animate
+        fillBar.style.transition = `width ${holdDuration}ms linear`;
+        fillBar.style.width = '100%';
+        
+        timer = setTimeout(() => {
+            isReadyToDelete = true;
+            textSpan.innerText = "Delete!";
+        }, holdDuration);
     };
-    const end = () => {
+    
+    const end = (e) => {
         clearTimeout(timer);
-        document.getElementById('btn-delete-page-fill').style.width = '0%';
-        document.getElementById('btn-delete-page-text').innerText = "Delete";
+        
+        // Check abort
+        const isAborted = e.type === 'mouseleave' || e.type === 'touchcancel';
+        
+        if (isReadyToDelete && !isAborted) {
+             textSpan.innerText = "Deleting...";
+             document.getElementById('page-delete-form').submit();
+        } else {
+             textSpan.innerText = "Delete";
+        }
+        
+        fillBar.style.transition = 'width 200ms ease-out, opacity 200ms ease-out';
+        fillBar.style.width = '0%';
+        fillBar.style.opacity = '';
+        isReadyToDelete = false;
     };
     
     btn.addEventListener('mousedown', start);
-    btn.addEventListener('touchstart', start);
+    btn.addEventListener('touchstart', start, { passive: true });
+    
     btn.addEventListener('mouseup', end);
     btn.addEventListener('mouseleave', end);
     btn.addEventListener('touchend', end);
+    btn.addEventListener('touchcancel', end);
 }
