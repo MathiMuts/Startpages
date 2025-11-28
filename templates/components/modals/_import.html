@@ -1,0 +1,30 @@
+<div id="page-import-modal" class="fixed inset-0 z-[200] hidden" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeImportModal()"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg bg-white dark:bg-gray-800 border-t-4 border-emerald-500">
+                <div class="px-8 py-8 sm:p-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white">Import Startpage</h3>
+                        <button type="button" onclick="closeImportModal()" class="cursor-pointer text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <form action="{% url 'startpages:import_startpage' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Paste JSON Content</label>
+                                <textarea name="json_data" rows="8" required class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white font-mono text-xs shadow-sm focus:border-emerald-500 focus:ring-emerald-500 p-3" placeholder='{ "title": "My Page", "sections": [...] }'></textarea>
+                                <p class="text-xs text-neutral-500 dark:text-gray-400 mt-1">Paste the content of a previously exported startpage JSON file.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" class="w-full inline-flex justify-center rounded-lg bg-emerald-600 px-3 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-500 cursor-pointer">Import Startpage</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

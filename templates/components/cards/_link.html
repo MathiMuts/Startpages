@@ -1,0 +1,20 @@
+<div class="{% if not is_preview %}draggable-link{% endif %} relative rounded-md group/link transition-colors duration-200 border border-transparent"
+     {% if not is_preview %}data-id="{{ link.id }}"{% endif %}>
+    <a href="{{ link.url }}" target="_blank"
+       class="edit-mode-disable flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-gray-900 dark:hover:text-white rounded-md transition-colors"
+       data-edit-target="name">
+       <div class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
+           <span class="link-dot absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0 {% if not link.color %}bg-primary-500{% endif %}"
+                 {% if link.color %}style="background-color: {{ link.color }};"{% endif %}></span>
+           <svg class="link-arrow absolute w-4 h-4 transition-all duration-200 ease-out opacity-0 scale-0 -rotate-45 group-hover/link:rotate-0 group-hover/link:opacity-100 group-hover/link:scale-100 {% if not link.color %}text-primary-500{% endif %}"
+                {% if link.color %}style="color: {{ link.color }};"{% endif %}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+           </svg>
+       </div>
+       <span class="truncate font-medium text-sm overflow-ellipsis leading-tight pt-0.5">{{ link.name }}</span>
+    </a>
+    {% if not is_preview %}
+    <div class="absolute inset-0 hidden edit-mode-overlay cursor-grab active:cursor-grabbing z-10 bg-white/10"></div>
+    {% endif %}
+</div>

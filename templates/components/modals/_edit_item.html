@@ -1,0 +1,49 @@
+<div id="edit-modal" class="fixed inset-0 z-[200] hidden" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto" onclick="closeEditModal()">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div id="edit-modal-card" onclick="event.stopPropagation()" class="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg bg-white dark:bg-gray-800 border-t-4 border-primary-500 dark:border-primary-400">
+                <div class="px-8 py-8 sm:p-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="modal-title">Edit Item</h3>
+                        <button type="button" onclick="closeEditModal()" class="cursor-pointer text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <form id="edit-form" class="flex flex-col gap-5">
+                        <input type="hidden" id="edit-id" name="id">
+                        <input type="hidden" id="edit-type" name="type">
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="col-span-3">
+                                <label for="edit-name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Name</label>
+                                <input type="text" id="edit-name" name="name" required autocomplete="off" class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4 sm:text-sm">
+                            </div>
+                            <div id="color-field-group" class="col-span-1">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Color</label>
+                                    <div id="color-preview" class="w-4 h-4 rounded-full border border-gray-200 dark:border-gray-600 bg-transparent"></div>
+                                </div>
+                                <input type="text" id="edit-color" name="color" maxlength="7" placeholder="Default" class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-3 sm:text-sm uppercase tracking-wider font-mono text-center" oninput="sanitizeColorInput(this)">
+                            </div>
+                        </div>
+                        <div id="url-field-group">
+                            <label for="edit-url" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">URL</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><span class="text-gray-500 sm:text-sm">https://</span></div>
+                                <input type="text" inputmode="url" id="edit-url" name="url" autocomplete="off" class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 pl-16 py-3 px-4 sm:text-sm" placeholder="example.com">
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-flow-row-dense">
+                            <button type="submit" class="col-span-1 inline-flex w-full justify-center rounded-lg bg-primary-600 px-3 py-3 text-sm font-bold text-white shadow-sm hover:bg-primary-500 sm:col-start-2 cursor-pointer">Save</button>
+                            <button type="button" id="btn-delete" class="hidden col-span-1 relative w-full justify-center items-center rounded-lg overflow-hidden bg-red-50 dark:bg-red-900/20 text-sm font-semibold text-red-600 dark:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-800 transition-all sm:col-start-1 cursor-pointer select-none group touch-none">
+                                <div id="btn-delete-fill" class="absolute inset-y-0 left-0 bg-red-500 dark:bg-red-600 w-0 opacity-20 group-active:opacity-100 pointer-events-none"></div>
+                                <span id="btn-delete-text" class="relative z-10 py-3 px-3 block w-full pointer-events-none">Delete</span>
+                            </button>
+                            <button type="button" id="btn-cancel" onclick="closeEditModal()" class="col-span-1 w-full justify-center rounded-lg bg-white dark:bg-gray-700 px-3 py-3 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:col-start-1 cursor-pointer hidden">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

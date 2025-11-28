@@ -54,7 +54,13 @@ def get_item_details(request):
         data = {'id': item.id, 'name': item.name, 'type': 'section'}
     elif item_type == 'link':
         item = get_object_or_404(Link, id=item_id, section__page__user=request.user)
-        data = {'id': item.id, 'name': item.name, 'url': item.url, 'type': 'link'}
+        data = {
+            'id': item.id, 
+            'name': item.name, 
+            'url': item.url, 
+            'color': item.color,
+            'type': 'link'
+        }
         
     return JsonResponse(data)
 
@@ -73,6 +79,11 @@ def save_item_details(request):
         item = get_object_or_404(Link, id=item_id, section__page__user=request.user)
         item.name = data.get('name')
         item.url = data.get('url')
+        
+        # If color is empty string or None, save as None
+        color = data.get('color')
+        item.color = color if color else None
+            
         item.save()
         
     return JsonResponse({'status': 'success'})
@@ -84,6 +95,7 @@ def add_link(request):
     section_id = data.get('section_id')
     name = data.get('name')
     url = data.get('url')
+    color = data.get('color') # Can be None or empty string
 
     section = get_object_or_404(Section, id=section_id, page__user=request.user)
     
@@ -97,6 +109,7 @@ def add_link(request):
         section=section,
         name=name,
         url=url,
+        color=color if color else None,
         order=new_order
     )
 
@@ -105,7 +118,8 @@ def add_link(request):
         'link': {
             'id': new_link.id,
             'name': new_link.name,
-            'url': new_link.url
+            'url': new_link.url,
+            'color': new_link.color
         }
     })
 
