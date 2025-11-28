@@ -44,3 +44,21 @@ if RUNNING_IN_DOCKER:
         else:
             CSRF_TRUSTED_ORIGINS = [f"http://{host}:{os.environ.get('APP_PORT', '8000')}" for host in ALLOWED_HOSTS if host not in ['*', '.example.com']]
             CSRF_TRUSTED_ORIGINS.extend([f"http://localhost:{os.environ.get('APP_PORT', '8000')}", f"http://127.0.0.1:{os.environ.get('APP_PORT', '8000')}"])
+
+# INFO: Allauth Configuration
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Trough Mathias.meersschaut@gmail.com @ https://console.cloud.google.com/
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_USERNAME_REQUIRED = True 
+ACCOUNT_UNIQUE_EMAIL = True

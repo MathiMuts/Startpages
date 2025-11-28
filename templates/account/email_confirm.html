@@ -1,0 +1,49 @@
+{% extends "modules/_base.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block title %}Confirm Email{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
+    
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-gray-700 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="px-8 py-6 bg-neutral-50 dark:bg-gray-900/50 border-b border-neutral-200 dark:border-gray-700 text-center">
+            <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">Confirm Email Address</h2>
+        </div>
+
+        <div class="p-8">
+            {% if confirmation %}
+                {% user_display confirmation.email_address.user as user_display %}
+                
+                <p class="text-neutral-700 dark:text-gray-300 text-center mb-6">
+                    Please confirm that <strong class="text-neutral-900 dark:text-white">{{ confirmation.email_address.email }}</strong> is an email address for user <strong class="text-neutral-900 dark:text-white">{{ user_display }}</strong>.
+                </p>
+
+                <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors cursor-pointer">
+                        Confirm
+                    </button>
+                </form>
+
+            {% else %}
+                <!-- Link Invalid/Expired -->
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </div>
+                    <p class="text-red-600 dark:text-red-400 font-medium mb-4">
+                        This confirmation link has expired or is invalid.
+                    </p>
+                    <p class="text-sm text-neutral-500 dark:text-gray-400">
+                        Please <a href="{% url 'account_email' %}" class="text-primary-600 hover:underline">issue a new e-mail confirmation request</a>.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

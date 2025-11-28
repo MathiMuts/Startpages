@@ -1,12 +1,13 @@
 # startpages/views.py
 
 import json
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db import transaction
 from .models import StartPage, Section, Link, Profile
+from .forms import UsernameChangeForm
 
 def home(request):
     return render(request, 'startpages/pages/index.html')
@@ -24,7 +25,7 @@ def index(request, username=None, slug=None):
         if not page:
             page = StartPage.objects.filter(user=request.user).first()
     
-    else:
+    if not page:
         return render(request, 'startpages/pages/index.html')
 
     sections = page.sections.prefetch_related('links').all()
@@ -39,9 +40,13 @@ def index(request, username=None, slug=None):
 @login_required
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
+    
+    google_account = request.user.socialaccount_set.filter(provider='google').first()
+    
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,
-        'tab': request.GET.get('tab', 'personal') # Support deep linking to tabs
+        'google_account': google_account,
+        'tab': request.GET.get('tab', 'personal')
     })
 
 @login_required
@@ -49,20 +54,23 @@ def update_personal_info(request):
     if request.method == 'POST':
         user = request.user
         
-        # Update basics
-        if request.POST.get('email'):
-            user.email = request.POST.get('email')
-        
-        # Update Avatar
+        # 1. Handle Avatar Update
         if request.FILES.get('avatar'):
-            # Ensure profile exists (handled by signal, but safe check)
             if not hasattr(user, 'profile'):
                 Profile.objects.create(user=user)
             user.profile.avatar = request.FILES['avatar']
             user.profile.save()
+            messages.success(request, 'Avatar updated.')
 
-        user.save()
-        messages.success(request, 'Profile updated successfully.')
+        # 2. Handle Username Update
+        if 'username' in request.POST:
+            form = UsernameChangeForm(request.POST, instance=user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Username updated successfully.')
+            else:
+                for error in form.errors.values():
+                    messages.error(request, error)
         
     return redirect('startpages:profile')
 
@@ -71,25 +79,27 @@ def create_startpage(request):
     if request.method == 'POST':
         title = request.POST.get('title')
         if title:
-            # Check if it's the first page, make it default automatically
             is_first = not StartPage.objects.filter(user=request.user).exists()
-            StartPage.objects.create(
+            new_page = StartPage.objects.create(
                 user=request.user, 
                 title=title,
                 is_default=is_first
             )
             messages.success(request, f'Startpage "{title}" created!')
+            return redirect('startpages:detail', username=request.user.username, slug=new_page.slug)
         else:
             messages.error(request, 'Title is required.')
-    return redirect('startpages:profile')
+    
+    return redirect(reverse('startpages:profile') + '?tab=startpages')
 
 @login_required
 def set_default_page(request, page_id):
     page = get_object_or_404(StartPage, id=page_id, user=request.user)
     page.is_default = True
-    page.save() # The model save() method handles unsetting other defaults
+    page.save()
     messages.success(request, f'{page.title} is now your default startpage.')
-    return redirect('startpages:profile')
+    
+    return redirect(reverse('startpages:profile') + '?tab=startpages')
 
 @login_required
 def edit_startpage(request, page_id):
@@ -102,16 +112,13 @@ def edit_startpage(request, page_id):
         if new_title:
             page.title = new_title
         
-        # Only handle is_default if it's being set to True, 
-        # or if it was True and being unchecked (need to ensure at least one default logic if desired)
-        # For simplicity, we stick to model logic: setting True unsets others. 
         if is_default:
             page.is_default = True
             
         page.save()
         messages.success(request, 'Startpage updated.')
         
-    return redirect('startpages:profile')
+    return redirect(reverse('startpages:profile') + '?tab=startpages')
 
 @login_required
 def delete_startpage(request, page_id):
@@ -121,7 +128,6 @@ def delete_startpage(request, page_id):
         title = page.title
         page.delete()
         
-        # If we deleted the default page, make another one default
         if was_default:
             next_page = StartPage.objects.filter(user=request.user).first()
             if next_page:
@@ -129,7 +135,8 @@ def delete_startpage(request, page_id):
                 next_page.save()
                 
         messages.success(request, f'Startpage "{title}" deleted.')
-    return redirect('startpages:profile')
+        
+    return redirect(reverse('startpages:profile') + '?tab=startpages')
 
 @login_required
 def export_startpage(request, page_id):
@@ -167,17 +174,14 @@ def import_startpage(request):
             data = json.loads(json_file)
             
             with transaction.atomic():
-                # Check if it's the first page
                 is_first = not StartPage.objects.filter(user=request.user).exists()
                 
-                # Create Page
                 page = StartPage.objects.create(
                     user=request.user,
                     title=data.get('title', 'Imported Page'),
                     is_default=is_first
                 )
                 
-                # Create Sections & Links
                 sections = data.get('sections', [])
                 for sec in sections:
                     new_section = Section.objects.create(
@@ -202,4 +206,5 @@ def import_startpage(request):
         except Exception as e:
             messages.error(request, f'Error importing page: {str(e)}')
             
-    return redirect('startpages:profile')
+    # Redirect to Startpages Tab
+    return redirect(reverse('startpages:profile') + '?tab=startpages')
