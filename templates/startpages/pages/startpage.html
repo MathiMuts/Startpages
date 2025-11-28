@@ -4,50 +4,92 @@
 {% block title %}Startpage{% endblock title %}
 {% block content %}
 
-<div class="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="main-scroll-container">
+<!-- Main Background with Gradient -->
+<div class="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" 
+     id="main-scroll-container">
 
-    <!-- Screen 1: Search & Preview -->
+    <!-- Screen 1: Search & Preview Row (Snap Center) -->
     <div class="snap-start min-h-screen flex flex-col justify-center items-center w-full relative py-12">
+        
+        <!-- Search Bar Container -->
         <div class="w-full max-w-2xl px-4 z-10 mb-52 mt-60">
             {% include "../../components/_search-bar.html" %}
         </div>
+
+        <!-- Preview Row -->
         <div class="w-full px-4 mb-4"> 
-             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392 gap-8 mx-auto p-4">
+             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
+                        w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392
+                        gap-8 mx-auto p-4">
                 {% for sec in sections|slice:":5" %}
                     {% include "../../components/cards/_section.html" with section=sec is_preview=True %}
                 {% endfor %}
             </div>
         </div>
-        <div class="text-center text-primary-400 dark:text-primary-600 animate-bounce cursor-pointer mt-auto opacity-70 hover:opacity-100 transition-opacity" onclick="document.getElementById('sections-grid').scrollIntoView({behavior: 'smooth'})">
+
+        <!-- Scroll Indicator -->
+        <div class="text-center text-primary-400 dark:text-primary-600 animate-bounce cursor-pointer mt-auto opacity-70 hover:opacity-100 transition-opacity" 
+             onclick="document.getElementById('sections-grid').scrollIntoView({behavior: 'smooth'})">
             <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
         </div>
     </div>
 
-    <!-- Screen 2: All Sections Grid -->
+    <!-- Screen 2: All Sections Grid (Snap Start) -->
     <div id="sections-grid" class="snap-start min-h-screen pt-24 pb-24">
+        
         <div class="text-center mb-10">
-            <span id="mode-indicator" class="px-4 py-2 rounded-full bg-white/50 dark:bg-black/30 backdrop-blur-sm text-sm font-semibold text-primary-600 dark:text-primary-300 shadow-sm border border-primary-100 dark:border-primary-900/50">Hold any item to Edit</span>
+            <span id="mode-indicator" class="px-4 py-2 rounded-full bg-white/50 dark:bg-black/30 backdrop-blur-sm text-sm font-semibold text-primary-600 dark:text-primary-300 shadow-sm border border-primary-100 dark:border-primary-900/50">
+                Hold any item to Edit
+            </span>
         </div>
 
-        <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392 gap-8 mx-auto pb-32">
+        <div id="grid-container" 
+             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
+                    w-72 sm:w-152 md:w-232 lg:w-312 xl:w-392
+                    gap-8 mx-auto pb-32">
+            
             {% for sec in sections %}
                 {% include "../../components/cards/_section.html" with section=sec %}
             {% endfor %}
 
             <!-- Add Section Button -->
-            <button onclick="openAddSectionModal()" class="{% if not sections %}flex{% else %}hidden edit-mode-visible{% endif %} h-[30rem] w-full cursor-pointer add-section-btn flex-col justify-center items-center gap-4 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400 hover:border-primary-400 dark:hover:border-primary-500 transition-colors duration-300 group">
+            <button onclick="openAddSectionModal()"
+                    class="{% if not sections %}flex{% else %}hidden edit-mode-visible{% endif %}
+                        h-[30rem] w-full cursor-pointer
+                        add-section-btn 
+                        flex-col justify-center items-center gap-4
+                        rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700
+                        bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800
+                        text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400
+                        hover:border-primary-400 dark:hover:border-primary-500
+                        transition-colors duration-300 group">
+                
                 <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
                 </div>
                 <span class="font-bold text-lg">Add Section</span>
             </button>
         </div>
     </div>
+
 </div>
 
 {% include "../../components/modals/_edit_item.html" %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-<!-- Using type="module" allows import/export -->
 <script type="module" src="{% static 'js/startpage_app.js' %}"></script>
+
+<style>
+    /* 
+      Behavior: When dragging starts (body.dragging-active),
+      find any section marked as 'near-full' (9 links),
+      and hide its adjacent Add Link button container (.group\/add).
+      This instantly frees up space for the dropped item.
+    */
+    body.dragging-active .near-full + .group\/add {
+        display: none !important;
+    }
+</style>
 {% endblock %}

@@ -48,12 +48,16 @@ export const DragDrop = {
             fallbackOnBody: true,
             swapThreshold: 0.65,
             ghostClass: 'sortable-ghost',
-            onMove: function (evt) { return evt.from === evt.to || !evt.to.classList.contains('section-full'); },
+            onMove: function (evt) { 
+                return evt.from === evt.to || !evt.to.classList.contains('section-full'); 
+            },
             onStart: function() { 
                 document.body.classList.add('dragging-active', 'dragging-link-active'); 
             },
             onEnd: function (evt) {
                 document.body.classList.remove('dragging-active', 'dragging-link-active');
+                
+                // Recalculate limits (removes near-full if it became full, etc)
                 UI.checkLinkLimit(evt.from);
                 if (evt.from !== evt.to) UI.checkLinkLimit(evt.to);
                 

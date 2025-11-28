@@ -31,15 +31,31 @@ export const UI = {
         if (!container) return;
         const sectionId = container.getAttribute('data-section-id');
         const count = container.querySelectorAll('.draggable-link').length;
-        const addBtn = document.querySelector(`#add-btn-container-${sectionId} .static-add-btn`);
         
-        if (addBtn) {
+        const btnContainer = document.getElementById(`add-btn-container-${sectionId}`);
+        const addBtn = btnContainer ? btnContainer.querySelector('.static-add-btn') : null;
+
+        // 1. Mark container state for CSS targeting
+        if (count >= 9) {
+            container.classList.add('near-full');
+        } else {
+            container.classList.remove('near-full');
+        }
+        
+        if (btnContainer && addBtn) {
             if (count >= 10) {
-                addBtn.style.setProperty('display', 'none', 'important');
+                // Section is Full (10+)
+                btnContainer.classList.add('hidden'); 
                 container.classList.add('section-full');
             } else {
-                addBtn.style.removeProperty('display');
+                // Section has space (<10)
+                btnContainer.classList.remove('hidden');
                 container.classList.remove('section-full');
+
+                // Cleanup inline styles from previous interactions
+                addBtn.style.removeProperty('display');
+
+                // Toggle visibility based on empty state
                 if (count === 0) {
                     addBtn.classList.remove('hidden', 'edit-mode-visible');
                     addBtn.classList.add('flex');
@@ -116,7 +132,7 @@ export const UI = {
             </div>
         </div>
         <div class="flex flex-col gap-1 flex-grow overflow-hidden">
-            <div class="flex flex-col gap-1.5 min-h-0 section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar px-1" data-section-id="${sectionData.id}"></div>
+            <div class="flex flex-col gap-1.5 min-h-0 section-links flex-grow overflow-y-auto overflow-x-visible custom-scrollbar px-1 [&::-webkit-scrollbar]:hidden" data-section-id="${sectionData.id}"></div>
             <div id="add-btn-container-${sectionData.id}" class="group/add px-1 pb-1">
                 <button onclick="openAddLinkModal('${sectionData.id}')" class="static-add-btn w-full text-left cursor-pointer flex items-center gap-3 px-3 py-1.5 mb-4 rounded-md border border-transparent text-gray-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all flex" title="Add Link">
                     <span class="flex items-center justify-center w-4 h-4"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></span>
@@ -130,7 +146,7 @@ export const UI = {
         else grid.appendChild(section);
         
         UI.checkSectionEmptyState();
-        return section.querySelector('.section-links'); // Return container to init sortable
+        return section.querySelector('.section-links');
     },
 
     removeItemFromDom: (type, id) => {
