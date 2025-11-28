@@ -7,7 +7,7 @@
 
 @theme {
     /* INFO: Blue */
-    --color-primary-50: oklch(97% 0.014 254.604);
+    /* --color-primary-50: oklch(97% 0.014 254.604);
     --color-primary-100: oklch(93.2% 0.032 255.585);
     --color-primary-200: oklch(88.2% 0.059 254.128);
     --color-primary-300: oklch(80.9% 0.105 251.813);
@@ -17,7 +17,20 @@
     --color-primary-700: oklch(48.8% 0.243 264.376);
     --color-primary-800: oklch(42.4% 0.199 265.638);
     --color-primary-900: oklch(37.9% 0.146 265.522);
-    --color-primary-950: oklch(28.2% 0.091 267.935);
+    --color-primary-950: oklch(28.2% 0.091 267.935); */
+
+    /* INFO: Lime */
+    --color-primary-50: oklch(98.6% 0.031 120.757);
+    --color-primary-100: oklch(96.7% 0.067 122.328);
+    --color-primary-200: oklch(93.8% 0.127 124.321);
+    --color-primary-300: oklch(89.7% 0.196 126.665);
+    --color-primary-400: oklch(84.1% 0.238 128.85);
+    --color-primary-500: oklch(76.8% 0.233 130.85);
+    --color-primary-600: oklch(64.8% 0.2 131.684);
+    --color-primary-700: oklch(53.2% 0.157 131.589);
+    --color-primary-800: oklch(45.3% 0.124 130.933);
+    --color-primary-900: oklch(40.5% 0.101 131.063);
+    --color-primary-950: oklch(27.4% 0.072 132.109);
 }
 
 :root {
@@ -50,7 +63,7 @@
   }
 
   .button {
-    @apply bg-primary-500/60 hover:bg-primary-500/80 transition-colors dark:text-white rounded-md cursor-pointer;
+    @apply bg-neutral-500/30 hover:bg-neutral-500/50 transition-colors dark:text-white rounded-md cursor-pointer;
   }
 
   

@@ -25,6 +25,7 @@ ROOT_URLCONF = 'project.urls'
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
+SITE_ID = 1 # For django-allauth
 
 # INFO: Internationalization
 
@@ -39,8 +40,8 @@ USE_TZ = True
 
 # INFO: 
 
-LOGIN_URL="login"
-LOGOUT_URL="logout"
+LOGIN_URL="account_login"
+LOGOUT_URL="account_logout"
 
 LOGIN_REDIRECT_URL="/"
 LOGOUT_REDIRECT_URL="/"

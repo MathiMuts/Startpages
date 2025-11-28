@@ -23,45 +23,102 @@
         </script>
     </head>
 
-  <body class="bg-neutral-100 dark:bg-neutral-900 dark:text-white min-h-screen flex flex-col">
+  <body class="bg-gradient-to-br from-neutral-50/50 via-neutral-50/50 to-primary-200/50 
+            dark:from-gray-900 dark:via-gray-900 dark:to-primary-950
+            dark:text-white min-h-screen flex flex-col">
     <header class="fixed top-0 right-0 z-50 p-5">
+      <!-- _messages.html will now invoke the JS toasts -->
       {% include "./_messages.html" %}
-      {% include "../components/_darkmode-button.html" %}
+      
+      {% if user.is_authenticated %}
+        <a href="{% url 'startpages:profile' %}" 
+           class="block w-15 h-15 rounded-full overflow-hidden border-2 border-transparent hover:border-primary-500 transition-all shadow-lg hover:scale-105"
+           title="Go to Profile">
+            
+            {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="Profile" class="w-full h-full object-cover">
+            {% else %}
+                <div class="w-full h-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold uppercase">
+                    {{ user.username|slice:":2" }}
+                </div>
+            {% endif %}
+        </a>
+      {% else %}
+          <a href="{% url 'account_login' %}" class="button-primary px-4 py-2 rounded text-white font-bold text-sm">Login</a>
+      {% endif %}
     </header>
     
     <main class="flex-grow flex flex-col">
       {% block content %}{% endblock content %}
     </main>
 
+    <!-- Global Toast Container (Bottom Right) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[150] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+      // Global Toast Function
+      window.showToast = function(message, type = 'success') {
+          const container = document.getElementById('toast-container');
+          if(!container) return;
+
+          const toast = document.createElement('div');
+          
+          let bgColor, icon;
+          
+          // Map Django/Generic types to styles
+          if (type === 'error' || type === 'danger') {
+              bgColor = 'bg-rose-600';
+              icon = 'M6 18L18 6M6 6l12 12'; // X icon
+          } else if (type === 'warning') {
+              bgColor = 'bg-amber-500';
+              icon = 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'; // Exclamation
+          } else {
+              // Default / Success
+              bgColor = 'bg-emerald-600';
+              icon = 'M5 13l4 4L19 7'; // Check icon
+          }
+
+          toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-10 opacity-0 flex items-center gap-3 pointer-events-auto min-w-[200px] max-w-sm`;
+          
+          toast.innerHTML = `
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${icon}"></path>
+              </svg>
+              <span class="font-medium text-sm leading-tight break-words">${message}</span>
+          `;
+
+          container.appendChild(toast);
+
+          // Animate In
+          requestAnimationFrame(() => {
+              toast.classList.remove('translate-y-10', 'opacity-0');
+          });
+
+          // Animate Out & Remove
+          setTimeout(() => {
+              toast.classList.add('translate-y-10', 'opacity-0');
+              setTimeout(() => toast.remove(), 300);
+          }, 4000); // 4 seconds
+      }
+    </script>
   </body>
   <style>
-    /* Edit Mode Visual Cues */
+    /* Global styles included here to ensure availability */
     .edit-mode-active .draggable-section {
-        border: 1px dashed #6366f1; /* Indigo-500 */
+        border: 1px dashed #6366f1;
         cursor: grab;
         animation: pulse-border 2s infinite;
     }
 
-    .edit-mode-active .edit-mode-hidden {
-        display: none !important;
-    }
-
-    .edit-mode-active .edit-mode-visible {
-        display: block !important;
-    }
-
-    .edit-mode-active .edit-mode-overlay {
-        display: block !important;
-    }
-
-    .edit-mode-active .edit-mode-disable {
-        pointer-events: none;
-    }
+    .edit-mode-active .edit-mode-hidden { display: none !important; }
+    .edit-mode-active .edit-mode-visible { display: flex !important; }
+    .edit-mode-active .edit-mode-overlay { display: block !important; }
+    .edit-mode-active .edit-mode-disable { pointer-events: none; }
 
     @keyframes pulse-border {
-        0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-        70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary-500), transparent 80%); }
+        70% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-primary-500), transparent 80%); }
+        100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary-500), transparent 80%);}
     }
   </style>
 </html>
