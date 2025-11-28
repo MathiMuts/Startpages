@@ -1,0 +1,128 @@
+{% extends "modules/_base.html" %}
+{% load static socialaccount i18n %}
+
+{% block title %}Create Account{% endblock title %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
+    
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-gray-700 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="px-8 py-6 bg-neutral-50 dark:bg-gray-900/50 border-b border-neutral-200 dark:border-gray-700 text-center">
+            <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">Create Account</h2>
+            <p class="text-sm text-neutral-500 dark:text-gray-400 mt-1">Join us to create your own startpages</p>
+        </div>
+
+        <div class="p-8">
+            <!-- Google Signup Button -->
+            <div class="mb-6">
+                <a href="{% provider_login_url 'google' process='login' %}" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-neutral-300 dark:border-gray-600 rounded-lg text-neutral-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-neutral-50 dark:hover:bg-gray-600 transition-colors font-medium text-sm">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google logo">
+                    Sign up with Google
+                </a>
+            </div>
+
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300 dark:border-gray-600"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white dark:bg-gray-800 text-gray-500">Or using email</span></div>
+            </div>
+
+            <form class="signup space-y-5" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+                
+                <!-- Global Errors -->
+                {% if form.non_field_errors %}
+                <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Loop through fields (Email, Username, Passwords) -->
+                {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">
+                        {{ field.label }}
+                    </label>
+                    
+                    <div class="relative">
+                        <!-- The input is rendered here by Django -->
+                        {{ field }}
+                    </div>
+                    
+                    <!-- Field Specific Errors -->
+                    {% if field.errors %}
+                        <div class="mt-1 text-xs text-red-500">
+                            {% for error in field.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Field Help Text (e.g. password rules) -->
+                    {% if field.help_text %}
+                        <div class="mt-2 text-xs text-neutral-500 dark:text-gray-400 help-text-ul">
+                            {{ field.help_text|safe }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors cursor-pointer mt-6">
+                    Create Account
+                </button>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="px-8 py-4 bg-neutral-50 dark:bg-gray-900/50 border-t border-neutral-200 dark:border-gray-700 text-center">
+            <p class="text-xs text-neutral-500 dark:text-gray-400">
+                Already have an account? <a href="{% url 'account_login' %}" class="text-primary-600 hover:underline">Sign in here</a>.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling for the help text list bullets */
+    .help-text-ul ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+    }
+    .help-text-ul li {
+        margin-bottom: 0.25rem;
+    }
+</style>
+
+<script>
+    // This script automatically applies your Tailwind classes to the plain Django inputs
+    document.addEventListener("DOMContentLoaded", function() {
+        const formInputs = document.querySelectorAll('#signup_form input');
+        const classesToAdd = [
+            'block', 'w-full', 'rounded-lg', 
+            'border-neutral-300', 'dark:border-gray-600', 
+            'bg-neutral-50', 'dark:bg-gray-900/50', 
+            'text-neutral-900', 'dark:text-white', 
+            'shadow-sm', 'focus:ring-primary-500', 
+            'focus:border-primary-500', 'sm:text-sm', 
+            'py-2.5', 'px-4', 'transition-colors'
+        ];
+
+        formInputs.forEach(input => {
+            // Apply classes
+            input.classList.add(...classesToAdd);
+            
+            // Remove the default Django helptext 'span' style if present
+            if(input.nextElementSibling && input.nextElementSibling.tagName === 'SPAN') {
+                input.nextElementSibling.classList.add('text-xs', 'text-gray-500', 'mt-1');
+            }
+        });
+    });
+</script>
+{% endblock %}

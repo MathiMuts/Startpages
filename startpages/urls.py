@@ -9,11 +9,12 @@ app_name = 'startpages'
 urlpatterns = [
     # Main page
     path('', views.index, name='index'),
+    path('home', views.home, name='home'),
     
     # Profile & Settings
     path('profile/', views.profile, name='profile'),
     path('profile/create-page/', views.create_startpage, name='create_startpage'),
-        path('profile/import-page/', views.import_startpage, name='import_startpage'),
+    path('profile/import-page/', views.import_startpage, name='import_startpage'),
     path('profile/page/<int:page_id>/edit/', views.edit_startpage, name='edit_startpage'),
     path('profile/page/<int:page_id>/delete/', views.delete_startpage, name='delete_startpage'),
     path('profile/page/<int:page_id>/export/', views.export_startpage, name='export_startpage'),

@@ -54,7 +54,7 @@
             {% endfor %}
 
             <button onclick="openAddSectionModal()"
-                    class="hidden edit-mode-visible
+                    class="{% if not sections %}flex{% else %}hidden edit-mode-visible{% endif %}
                         h-[30rem] w-full cursor-pointer
                         add-section-btn 
                         flex-col justify-center items-center gap-4
