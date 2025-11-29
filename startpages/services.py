@@ -1,3 +1,5 @@
+# startpages/services.py
+
 import json
 from django.db import transaction
 from .models import StartPage, Section, Link
@@ -19,6 +21,7 @@ class StartPageService:
                 sec_data['links'].append({
                     'name': link.name,
                     'url': link.url,
+                    'color': link.color,
                     'order': link.order
                 })
             data['sections'].append(sec_data)
@@ -51,6 +54,7 @@ class StartPageService:
                             section=new_section,
                             name=link.get('name', 'Link'),
                             url=link.get('url', '#'),
+                            color=link.get('color'),
                             order=link.get('order', 0)
                         )
             return True, page.title
