@@ -1,11 +1,11 @@
 <div id="tab-customization" class="tab-content hidden animate-fade-in">
-    <h2 class="text-2xl font-bold text-neutral-800 dark:text-white mb-6">Customization</h2>
+    <h2 class="text-2xl font-bold text-secondary-800 dark:text-white mb-6">Customization</h2>
     <div class="space-y-6">
 
-        <div class="flex flex-col gap-4 p-4 bg-neutral-50 dark:bg-gray-900/50 rounded-xl border border-neutral-200 dark:border-gray-700">
+        <div class="flex flex-col gap-4 p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
             <div>
-                <h3 class="font-bold text-neutral-800 dark:text-white">App Theme</h3>
-                <p class="text-sm text-neutral-500">Select a theme for your profile.</p>
+                <h3 class="font-bold text-secondary-800 dark:text-white">App Theme</h3>
+                <p class="text-sm text-secondary-500">Select a theme for your profile.</p>
             </div>
             
             <div class="flex flex-wrap gap-4 pt-2">
@@ -17,7 +17,7 @@
                 {% for theme in themes %}
                 <button type="button" 
                         onclick="setTheme('{{ theme.id }}', '{{ theme.is_dark|yesno:'true,false' }}')"
-                        class="theme-btn relative w-12 h-12 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-gray-900 {% if current_theme == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
+                        class="theme-btn relative w-12 h-12 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900 {% if current_theme == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
                         data-theme-id="{{ theme.id }}"
                         title="{{ theme.name }}">
                     
@@ -41,13 +41,13 @@
             </div>
         </div>
         
-        <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-gray-900/50 rounded-xl border border-neutral-200 dark:border-gray-700">
+        <div class="flex items-center justify-between p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
             <div>
-                <h3 class="font-bold text-neutral-800 dark:text-white">Show localhost input</h3>
-                <p class="text-sm text-neutral-500">Show an input in the TODO: to input a port to connect to via localhost.</p>
+                <h3 class="font-bold text-secondary-800 dark:text-white">Show localhost input</h3>
+                <p class="text-sm text-secondary-500">Show an input in the TODO: to input a port to connect to via localhost.</p>
             </div>
             <!-- ID fixed from 'profile-dark-mode-toggle' to avoid duplicate IDs -->
-            <button id="localhost-input-toggle" type="button" class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-neutral-200 dark:bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
+            <button id="localhost-input-toggle" type="button" class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-secondary-200 dark:bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
                 <span class="sr-only">Use setting</span>
                 <span aria-hidden="true" class="pointer-events-none h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0 dark:translate-x-6 flex items-center justify-center"></span>
             </button>
