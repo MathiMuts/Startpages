@@ -7,34 +7,69 @@
             <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Username</label>
             <input type="text" name="username" value="{{ user.username }}" required autocomplete="off" class="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-neutral-300 dark:border-gray-600 text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
         </div>
+
+        <!-- EMAIL SECTION -->
         <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Email Addresses</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-2">Email Addresses</label>
             <div class="flex items-center gap-2">
-                <input type="email" value="{{ user.email }}" disabled autocomplete="off" class="flex-1 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-gray-900 border border-neutral-300 dark:border-gray-600 text-neutral-500 cursor-not-allowed">
-                <a href="{% url 'account_email' %}" class="px-4 py-2 bg-neutral-200 dark:bg-gray-700 hover:bg-neutral-300 dark:hover:bg-gray-600 rounded-lg text-sm font-bold text-neutral-700 dark:text-white transition-colors">Manage</a>
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <input type="email" value="{{ user.email }}" disabled autocomplete="off" class="w-full pl-9 pr-4 py-2 rounded-lg bg-neutral-100 dark:bg-gray-900 border border-neutral-300 dark:border-gray-600 text-neutral-500 cursor-not-allowed text-sm">
+                    {% with email_count=user.emailaddress_set.count %}
+                        {% if email_count > 1 %}
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-xs text-neutral-400">
+                                +{{ email_count|add:"-1" }} more
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <a href="{% url 'account_email' %}" class="px-4 py-2 bg-neutral-200 dark:bg-gray-700 hover:bg-neutral-300 dark:hover:bg-gray-600 rounded-lg text-sm font-bold text-neutral-700 dark:text-white transition-colors cursor-pointer whitespace-nowrap">Manage</a>
             </div>
         </div>
+
+        <!-- LINKED ACCOUNTS SECTION -->
         <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Linked Accounts</label>
-            {% if google_account %}
-                <div class="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-900">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
-                    <span class="text-sm text-emerald-700 dark:text-emerald-400 font-medium">Google Connected</span>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-2">Linked Accounts</label>
+
+            <div class="flex items-center gap-2">
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 h-4" alt="Google">
+                    </div>
+                    
+                    {% with accounts=user.socialaccount_set.all %}
+                        <input type="text" 
+                            value="{% if accounts %}{{ accounts.0.extra_data.email|default:accounts.0.uid }}{% else %}No accounts connected{% endif %}" 
+                            disabled 
+                            class="w-full pl-9 pr-4 py-2 rounded-lg bg-neutral-100 dark:bg-gray-900 border border-neutral-300 dark:border-gray-600 text-neutral-500 cursor-not-allowed text-sm">
+                        
+                        {% if accounts.count > 1 %}
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-xs text-neutral-400">
+                                +{{ accounts.count|add:"-1" }} more
+                            </span>
+                        {% endif %}
+                    {% endwith %}
                 </div>
-            {% else %}
-                <a href="{% provider_login_url 'google' process='connect' %}" class="inline-flex items-center gap-3 px-4 py-2 border border-neutral-300 dark:border-gray-600 rounded-lg text-neutral-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-neutral-50 dark:hover:bg-gray-600 transition-colors font-medium text-sm">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
-                    Connect Google Account
+                
+                <a href="{% url 'socialaccount_connections' %}" class="px-4 py-2 bg-neutral-200 dark:bg-gray-700 hover:bg-neutral-300 dark:hover:bg-gray-600 rounded-lg text-sm font-bold text-neutral-700 dark:text-white transition-colors cursor-pointer whitespace-nowrap">
+                    Manage
                 </a>
-            {% endif %}
+            </div>
         </div>
+
+        <!-- AVATAR SECTION -->
         <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">Profile Picture</label>
             <input type="file" name="avatar" accept="image/*" class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:hover:file:bg-primary-800 dark:file:bg-primary-900 dark:file:text-primary-300 cursor-pointer">
         </div>
+
+        <!-- CHANGE PWD SECTION -->
         <div class="pt-2 border-t border-neutral-200 dark:border-gray-700">
             <a href="{% url 'account_change_password' %}" class="text-sm font-bold text-primary-600 hover:underline">Change Password</a>
         </div>
+        
         <div class="pt-4">
             <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors cursor-pointer">Save Changes</button>
         </div>

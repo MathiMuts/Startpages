@@ -45,3 +45,6 @@ LOGOUT_URL="account_logout"
 
 LOGIN_REDIRECT_URL="/"
 LOGOUT_REDIRECT_URL="/"
+
+NTFY_BASE_URL = os.environ.get("NTFY_BASE_URL")
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC")
