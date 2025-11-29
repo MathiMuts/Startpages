@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import StartPage, Profile
+from .models import StartPage, Profile, ColorScheme
 from .forms import UsernameChangeForm
 from .services import StartPageService
 from allauth.socialaccount.models import SocialAccount # pyright: ignore[reportMissingImports]
@@ -32,19 +32,7 @@ def index(request, username=None, slug=None):
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
     google_accounts = request.user.socialaccount_set.filter(provider='google')
-    themes = [{
-            'id': 'green-black',
-            'name': 'Green Black',
-            'is_dark': True,
-            'colors': ['#000000', "#2b2b2b", '#00ff00', "#00A000"]
-            },
-            {
-            'id': 'green-black',
-            'name': 'Green Black',
-            'is_dark': False,
-            'colors': ["#FFFFFF", "#b1b1b1", "#003cff", "#5196FF"]
-            }
-        ]
+    themes = ColorScheme.objects.all()
     
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,
@@ -90,7 +78,6 @@ def create_startpage(request):
 @login_required
 def set_default_page(request, page_id):
     page = get_object_or_404(StartPage, id=page_id, user=request.user)
-    # Unset other defaults (optional, but good practice if model doesn't handle it)
     StartPage.objects.filter(user=request.user, is_default=True).update(is_default=False)
     page.is_default = True
     page.save()

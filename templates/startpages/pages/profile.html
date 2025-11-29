@@ -21,7 +21,7 @@
 {% include "../../components/modals/_edit_page.html" %}
 {% include "../../components/modals/_import.html" %}
 
-<script src="{% static 'js/profile.js' %}"></script>
+<script type="module" src="{% static 'js/profile.js' %}"></script>
 <style>
     .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }

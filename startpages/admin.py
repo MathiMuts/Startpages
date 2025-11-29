@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GlobalSettings, StartPage, Section, Link, ColorScheme
+from .models import GlobalSettings, StartPage, Section, Link, ColorScheme, Profile
 
 class LinkInline(admin.TabularInline):
     model = Link
@@ -43,3 +43,4 @@ admin.site.register(StartPage, StartPageAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(Link)
 admin.site.register(ColorScheme)
+admin.site.register(Profile)

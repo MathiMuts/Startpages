@@ -42,5 +42,13 @@ export const API = {
         return fetch('/api/delete-item/', {
             method: 'POST', headers: headers(), body: JSON.stringify({ type, id })
         }).then(res => res.json());
+    },
+    updateTheme: (themeId) => {
+        return fetch('/api/update-theme/', {
+            method: 'POST', headers: headers(), body: JSON.stringify({ theme_id: themeId })
+        }).then(res => res.json());
+    },
+    getTheme: () => {
+        return fetch('/api/get-theme/').then(res => res.json());
     }
 };
