@@ -8,7 +8,7 @@
             <form action="{% url 'startpages:create_startpage' %}" method="POST" class="flex gap-2 flex-1 sm:flex-none">
                 {% csrf_token %}
                 <input type="text" name="title" placeholder="New page title..." required autocomplete="off" class="px-3 py-1.5 rounded-md border border-neutral-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm dark:text-white w-full sm:w-40">
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3 py-1.5 rounded-md transition-colors cursor-pointer">Create</button>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-3 py-1.5 rounded-md transition-colors cursor-pointer">Create</button>
             </form>
         </div>
     </div>
