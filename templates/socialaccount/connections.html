@@ -57,7 +57,7 @@
 
                                 <div>
                                     <span class="block font-medium text-neutral-900 dark:text-white break-all">
-                                        {{ base_account }}
+                                        {{ base_account.extra_data.email|default:base_account }}
                                     </span>
                                     <div class="flex gap-2 mt-1">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 capitalize">
@@ -74,7 +74,7 @@
                 <!-- HOLD TO REMOVE BUTTON -->
                 <div class="flex justify-end border-t border-neutral-200 dark:border-gray-700 pt-4">
                     <button type="button" id="btn-remove-account"
-                            class="relative overflow-hidden group select-none touch-none
+                            class="relative overflow-hidden group select-none touch-none cursor-pointer
                                    w-40 px-4 py-2 rounded-lg text-sm font-bold transition-all
                                    bg-red-50 text-red-600 border border-red-200 
                                    hover:border-red-300 dark:bg-red-900/20 dark:border-red-900 dark:text-red-400"
