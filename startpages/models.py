@@ -55,6 +55,7 @@ class ColorScheme(models.Model):
     name = models.CharField(max_length=100)
     is_dark = models.BooleanField(default=False, help_text="Does this theme use dark mode?")
     css_variables = models.JSONField(default=dict, help_text="Dictionary mapping CSS variable names to values")
+    order = models.PositiveIntegerField(default=100, help_text="Lower numbers appear first")
 
     @property
     def preview_colors(self):
@@ -88,6 +89,9 @@ class ColorScheme(models.Model):
                 hex_colors.append('#000000')
 
         return hex_colors
+    
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.name
