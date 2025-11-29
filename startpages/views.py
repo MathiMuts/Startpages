@@ -32,10 +32,25 @@ def index(request, username=None, slug=None):
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
     google_accounts = request.user.socialaccount_set.filter(provider='google')
+    themes = [{
+            'id': 'green-black',
+            'name': 'Green Black',
+            'is_dark': True,
+            'colors': ['#000000', "#2b2b2b", '#00ff00', "#00A000"]
+            },
+            {
+            'id': 'green-black',
+            'name': 'Green Black',
+            'is_dark': False,
+            'colors': ["#FFFFFF", "#b1b1b1", "#003cff", "#5196FF"]
+            }
+        ]
+    
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,
         'google_accounts': google_accounts,
-        'tab': request.GET.get('tab', 'personal')
+        'tab': request.GET.get('tab', 'personal'),
+        'themes': themes
     })
 
 @login_required

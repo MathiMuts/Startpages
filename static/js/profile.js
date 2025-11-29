@@ -3,24 +3,49 @@ document.addEventListener('DOMContentLoaded', () => {
     switchTab(urlParams.get('tab') || 'personal');
     initPageDeleteLogic();
     
-    // Profile Dark Mode Toggle
-    const toggle = document.getElementById("profile-dark-mode-toggle");
-    if (toggle) {
-        toggle.addEventListener("click", () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            dot.classList.toggle('translate-x-0', !isDark);
-            dot.classList.toggle('translate-x-6', isDark);
-        });
-        // Set initial position
-        if (document.documentElement.classList.contains('dark')) {
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            dot.classList.remove('translate-x-0');
-            dot.classList.add('translate-x-6');
-        }
-    }
+    // Note: Theme initialization happens via server-side rendering or previously saved local storage state
+    // stored in the head of the document usually to prevent FOUC.
 });
+
+window.setTheme = function(themeId, isDark) {
+    // 1. Update UI active state (visual selection ring)
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('ring-primary-600', 'dark:ring-primary-500');
+        btn.classList.add('ring-transparent');
+        // Remove checkmark overlay if it exists via JS, or let server re-render handle it on refresh
+        const check = btn.querySelector('svg');
+        if(check && check.parentElement.classList.contains('absolute')) {
+            check.parentElement.remove();
+        }
+    });
+
+    const activeBtn = document.querySelector(`.theme-btn[data-theme-id="${themeId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.remove('ring-transparent');
+        activeBtn.classList.add('ring-primary-600', 'dark:ring-primary-500');
+    }
+
+    // 2. Apply Dark/Light mode based on theme configuration
+    const isDarkMode = (isDark === 'true' || isDark === true);
+    if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
+    // 3. Save Preference
+    // Assuming an API endpoint exists, or fallback to LocalStorage
+    localStorage.setItem('theme', themeId);
+    
+    // If you have an API endpoint to save user preference:
+    /*
+    fetch('/api/update-theme/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify({ theme_id: themeId })
+    });
+    */
+};
 
 window.switchTab = function(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
