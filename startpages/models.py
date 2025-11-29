@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
+from coloraide import Color # pyright: ignore[reportMissingImports]
 
 NTFY_PRIORITIES = [
     ('max', 'Max'),
@@ -53,8 +54,40 @@ class ColorScheme(models.Model):
     settings = models.ForeignKey(GlobalSettings, on_delete=models.CASCADE, related_name='themes')
     name = models.CharField(max_length=100)
     is_dark = models.BooleanField(default=False, help_text="Does this theme use dark mode?")
-    preview_colors = models.JSONField(default=list, help_text="List of 4 hex codes for the UI preview")
     css_variables = models.JSONField(default=dict, help_text="Dictionary mapping CSS variable names to values")
+
+    @property
+    def preview_colors(self):
+        """
+        Calculates a list of 4 hex color codes for the UI preview based on
+        the theme's css_variables and whether it's in dark or light mode.
+        """
+        if self.is_dark:
+            variable_names = [
+                '--color-secondary-900',
+                '--color-secondary-800',
+                '--color-primary-500',
+                '--color-primary-600'
+            ]
+        else:
+            variable_names = [
+                '--color-secondary-200',
+                '--color-secondary-300',
+                '--color-primary-500',
+                '--color-primary-400'
+            ]
+
+        hex_colors = []
+        for var_name in variable_names:
+            oklch_value = self.css_variables.get(var_name, 'black')
+            
+            try:
+                hex_color = Color(oklch_value).to_string(hex=True)
+                hex_colors.append(hex_color)
+            except Exception:
+                hex_colors.append('#000000')
+
+        return hex_colors
 
     def __str__(self):
         return self.name
