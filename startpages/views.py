@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from .models import StartPage, Profile
 from .forms import UsernameChangeForm
 from .services import StartPageService
+from allauth.socialaccount.models import SocialAccount # pyright: ignore[reportMissingImports]
 
 def home(request):
     return render(request, 'startpages/pages/index.html')
@@ -30,10 +31,10 @@ def index(request, username=None, slug=None):
 @login_required
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
-    google_account = request.user.socialaccount_set.filter(provider='google').first()
+    google_accounts = request.user.socialaccount_set.filter(provider='google')
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,
-        'google_account': google_account,
+        'google_accounts': google_accounts,
         'tab': request.GET.get('tab', 'personal')
     })
 
@@ -130,3 +131,19 @@ def import_startpage(request):
         else:
             messages.error(request, f'Error importing page: {message}')
     return redirect(reverse('startpages:profile') + '?tab=startpages')
+
+@login_required
+def manage_social_connections(request):
+    accounts = request.user.socialaccount_set.all().order_by('provider', 'uid')
+    return render(request, 'startpages/pages/social_connections.html', {
+        'accounts': accounts
+    })
+    
+@login_required
+def disconnect_social_account(request, account_id):
+    if request.method == 'POST':
+        account = get_object_or_404(SocialAccount, id=account_id, user=request.user)
+        provider = account.provider
+        account.delete()
+        messages.success(request, f'{provider.title()} account disconnected successfully.')
+    return redirect('startpages:manage_social')

@@ -1,0 +1,21 @@
+DAILY SUMMARY - {{ date }}
+==================================================
+
+Hello,
+
+Here is your daily overview of activity on StartPages.
+
+{% if include_registrations %}
+NEW REGISTRATIONS ({{ registrations_count }})
+--------------------------------------------------
+{% if registrations %}
+{% for user in registrations %}
+* {{ user.username }} ({{ user.email }}) - {{ user.date_joined|date:"H:i" }}
+{% endfor %}
+{% else %}
+No new registrations in the last 24 hours.
+{% endif %}
+{% endif %}
+
+--------------------------------------------------
+StartPages Project - Automated System Email

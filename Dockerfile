@@ -33,6 +33,7 @@ RUN apt-get update && \
     procps \
     curl \
     gosu \
+    cron \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/* \
@@ -48,7 +49,8 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 
 # --- INFO: Application Setup ---
 COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY cron.sh /app/cron.sh
+RUN chmod +x /app/entrypoint.sh /app/cron.sh
 
 COPY . .
 

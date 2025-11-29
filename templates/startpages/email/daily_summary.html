@@ -1,0 +1,81 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Daily Summary</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: sans-serif;">
+
+    <!-- Main Wrapper -->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                
+                <!-- Card Container -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color: #1f2937; padding: 30px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Daily Summary</h1>
+                            <p style="color: #9ca3af; margin: 5px 0 0; font-size: 14px;">{{ date }}</p>
+                        </td>
+                    </tr>
+
+                    <!-- Body Content -->
+                    <tr>
+                        <td style="padding: 40px 30px; color: #333333; font-size: 16px; line-height: 1.6;">
+                            <p style="margin-top: 0;">Hello,</p>
+                            <p>Here is your daily overview of activity on <strong>StartPages</strong>.</p>
+
+                            <!-- Registrations Section -->
+                            {% if include_registrations %}
+                                <div style="margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                                    <h2 style="font-size: 18px; color: #111827; margin-bottom: 15px;">
+                                        New Registrations ({{ registrations_count }})
+                                    </h2>
+
+                                    {% if registrations %}
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                                            {% for user in registrations %}
+                                            <tr>
+                                                <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6;">
+                                                    <strong style="color: #059669;">{{ user.username }}</strong>
+                                                    <span style="font-size: 12px; color: #6b7280;">({{ user.email }})</span>
+                                                </td>
+                                                <td align="right" style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 12px; color: #9ca3af;">
+                                                    {{ user.date_joined|date:"H:i" }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </table>
+                                    {% else %}
+                                        <p style="color: #6b7280; font-style: italic;">No new registrations in the last 24 hours.</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Placeholder for future sections (e.g., Error logs, System stats) -->
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0;">
+                                This email was sent automatically based on your Global Settings configuration.
+                            </p>
+                            <p style="margin: 5px 0 0;">
+                                &copy; {% now "Y" %} StartPages Project. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
