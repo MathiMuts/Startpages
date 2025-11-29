@@ -6,26 +6,26 @@
 {% block content %}
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
     
-    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-gray-700 overflow-hidden">
+    <div class="w-full max-w-md bg-white dark:bg-secondary-800 rounded-2xl shadow-xl border border-secondary-200 dark:border-secondary-700 overflow-hidden">
         
         <!-- Header -->
-        <div class="px-8 py-6 bg-neutral-50 dark:bg-gray-900/50 border-b border-neutral-200 dark:border-gray-700 text-center">
-            <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">Create Account</h2>
-            <p class="text-sm text-neutral-500 dark:text-gray-400 mt-1">Join us to create your own startpages</p>
+        <div class="px-8 py-6 bg-secondary-50 dark:bg-secondary-900/50 border-b border-secondary-200 dark:border-secondary-700 text-center">
+            <h2 class="text-2xl font-bold text-secondary-800 dark:text-white">Create Account</h2>
+            <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Join us to create your own startpages</p>
         </div>
 
         <div class="p-8">
             <!-- Google Signup Button -->
             <div class="mb-6">
-                <a href="{% provider_login_url 'google' process='login' %}" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-neutral-300 dark:border-gray-600 rounded-lg text-neutral-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-neutral-50 dark:hover:bg-gray-600 transition-colors font-medium text-sm">
+                <a href="{% provider_login_url 'google' process='login' %}" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-secondary-300 dark:border-secondary-600 rounded-lg text-secondary-700 dark:text-white bg-white dark:bg-secondary-700 hover:bg-secondary-50 dark:hover:bg-secondary-600 transition-colors font-medium text-sm">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google logo">
                     Sign up with Google
                 </a>
             </div>
 
             <div class="relative mb-6">
-                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300 dark:border-gray-600"></div></div>
-                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white dark:bg-gray-800 text-gray-500">Or using email</span></div>
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-secondary-300 dark:border-secondary-600"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white dark:bg-secondary-800 text-secondary-500">Or using email</span></div>
             </div>
 
             <form class="signup space-y-5" id="signup_form" method="post" action="{% url 'account_signup' %}">
@@ -43,7 +43,7 @@
                 <!-- Loop through fields (Email, Username, Passwords) -->
                 {% for field in form %}
                 <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">
                         {{ field.label }}
                     </label>
                     
@@ -63,7 +63,7 @@
                     
                     <!-- Field Help Text (e.g. password rules) -->
                     {% if field.help_text %}
-                        <div class="mt-2 text-xs text-neutral-500 dark:text-gray-400 help-text-ul">
+                        <div class="mt-2 text-xs text-secondary-500 dark:text-secondary-400 help-text-ul">
                             {{ field.help_text|safe }}
                         </div>
                     {% endif %}
@@ -81,8 +81,8 @@
         </div>
         
         <!-- Footer -->
-        <div class="px-8 py-4 bg-neutral-50 dark:bg-gray-900/50 border-t border-neutral-200 dark:border-gray-700 text-center">
-            <p class="text-xs text-neutral-500 dark:text-gray-400">
+        <div class="px-8 py-4 bg-secondary-50 dark:bg-secondary-900/50 border-t border-secondary-200 dark:border-secondary-700 text-center">
+            <p class="text-xs text-secondary-500 dark:text-secondary-400">
                 Already have an account? <a href="{% url 'account_login' %}" class="text-primary-600 hover:underline">Sign in here</a>.
             </p>
         </div>
@@ -106,9 +106,9 @@
         const formInputs = document.querySelectorAll('#signup_form input');
         const classesToAdd = [
             'block', 'w-full', 'rounded-lg', 
-            'border-neutral-300', 'dark:border-gray-600', 
-            'bg-neutral-50', 'dark:bg-gray-900/50', 
-            'text-neutral-900', 'dark:text-white', 
+            'border-secondary-300', 'dark:border-secondary-600', 
+            'bg-secondary-50', 'dark:bg-secondary-900/50', 
+            'text-secondary-900', 'dark:text-white', 
             'shadow-sm', 'focus:ring-primary-500', 
             'focus:border-primary-500', 'sm:text-sm', 
             'py-2.5', 'px-4', 'transition-colors'
@@ -120,7 +120,7 @@
             
             // Remove the default Django helptext 'span' style if present
             if(input.nextElementSibling && input.nextElementSibling.tagName === 'SPAN') {
-                input.nextElementSibling.classList.add('text-xs', 'text-gray-500', 'mt-1');
+                input.nextElementSibling.classList.add('text-xs', 'text-secondary-500', 'mt-1');
             }
         });
     });

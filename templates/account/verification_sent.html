@@ -6,27 +6,27 @@
 {% block content %}
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
     
-    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-gray-700 overflow-hidden">
+    <div class="w-full max-w-md bg-white dark:bg-secondary-800 rounded-2xl shadow-xl border border-secondary-200 dark:border-secondary-700 overflow-hidden">
         
         <!-- Header -->
         <div class="px-8 py-6 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-900/50 text-center">
             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900 mb-4">
                 <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
             </div>
-            <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">Verify Your Email</h2>
+            <h2 class="text-2xl font-bold text-secondary-800 dark:text-white">Verify Your Email</h2>
         </div>
 
         <div class="p-8 text-center">
-            <p class="text-neutral-600 dark:text-gray-300 mb-4">
+            <p class="text-secondary-600 dark:text-secondary-300 mb-4">
                 We have sent an email to you for verification. Follow the link provided to finalize the signup process.
             </p>
-            <p class="text-sm text-neutral-500 dark:text-gray-400">
+            <p class="text-sm text-secondary-500 dark:text-secondary-400">
                 Please contact us if you do not receive it within a few minutes.
             </p>
         </div>
         
         <!-- Footer -->
-        <div class="px-8 py-4 bg-neutral-50 dark:bg-gray-900/50 border-t border-neutral-200 dark:border-gray-700 text-center">
+        <div class="px-8 py-4 bg-secondary-50 dark:bg-secondary-900/50 border-t border-secondary-200 dark:border-secondary-700 text-center">
             <a href="{% url 'account_login' %}" class="text-xs text-primary-600 hover:underline">
                 Return to Sign In
             </a>

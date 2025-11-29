@@ -128,14 +128,14 @@ window.switchTab = function(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(el => {
         el.classList.remove('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
-        el.classList.add('text-neutral-600', 'dark:text-gray-300');
+        el.classList.add('text-secondary-600', 'dark:text-secondary-300');
     });
 
     const content = document.getElementById('tab-' + tabName);
     const btn = document.getElementById('tab-btn-' + tabName);
     if(content) content.classList.remove('hidden');
     if(btn) {
-        btn.classList.remove('text-neutral-600', 'dark:text-gray-300');
+        btn.classList.remove('text-secondary-600', 'dark:text-secondary-300');
         btn.classList.add('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
     }
     const url = new URL(window.location);

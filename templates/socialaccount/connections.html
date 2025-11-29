@@ -6,13 +6,13 @@
 {% block content %}
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
     
-    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-gray-700 overflow-hidden">
+    <div class="w-full max-w-2xl bg-white dark:bg-secondary-800 rounded-2xl shadow-xl border border-secondary-200 dark:border-secondary-700 overflow-hidden">
         
         <!-- Header -->
-        <div class="px-8 py-6 bg-neutral-50 dark:bg-gray-900/50 border-b border-neutral-200 dark:border-gray-700 flex justify-between items-center">
+        <div class="px-8 py-6 bg-secondary-50 dark:bg-secondary-900/50 border-b border-secondary-200 dark:border-secondary-700 flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-neutral-800 dark:text-white">Linked Accounts</h2>
-                <p class="text-sm text-neutral-500 dark:text-gray-400 mt-1">
+                <h2 class="text-2xl font-bold text-secondary-800 dark:text-white">Linked Accounts</h2>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
                     Manage your third-party connections.
                 </p>
             </div>
@@ -37,7 +37,7 @@
                 <div class="space-y-3 mb-6">
                     {% for base_account in form.accounts %}
                     <label class="flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all social-row
-                                  border-neutral-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800">
+                                  border-secondary-200 dark:border-secondary-700 hover:border-primary-300 dark:hover:border-secondary-500 bg-white dark:bg-secondary-800">
                         
                         <div class="flex items-center gap-4">
                             <!-- Radio Input (Allauth requires name='account') -->
@@ -45,18 +45,18 @@
                                    value="{{ base_account.id }}" 
                                    {% if forloop.first %}checked{% endif %}
                                    onchange="updateSelection(this)"
-                                   class="account-radio w-5 h-5 text-primary-600 border-gray-300 focus:ring-primary-500">
+                                   class="account-radio w-5 h-5 text-primary-600 border-secondary-300 focus:ring-primary-500">
                             
                             <div class="flex items-center gap-4">
                                 <!-- Icon Logic -->
                                 {% if base_account.provider == 'google' %}
                                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
                                 {% else %}
-                                    <div class="w-6 h-6 rounded-full bg-neutral-200 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-neutral-500 uppercase">{{ base_account.provider|slice:":1" }}</div>
+                                    <div class="w-6 h-6 rounded-full bg-secondary-200 dark:bg-secondary-600 flex items-center justify-center text-xs font-bold text-secondary-500 uppercase">{{ base_account.provider|slice:":1" }}</div>
                                 {% endif %}
 
                                 <div>
-                                    <span class="block font-medium text-neutral-900 dark:text-white break-all">
+                                    <span class="block font-medium text-secondary-900 dark:text-white break-all">
                                         {{ base_account.extra_data.email|default:base_account }}
                                     </span>
                                     <div class="flex gap-2 mt-1">
@@ -72,7 +72,7 @@
                 </div>
 
                 <!-- HOLD TO REMOVE BUTTON -->
-                <div class="flex justify-end border-t border-neutral-200 dark:border-gray-700 pt-4">
+                <div class="flex justify-end border-t border-secondary-200 dark:border-secondary-700 pt-4">
                     <button type="button" id="btn-remove-account"
                             class="relative overflow-hidden group select-none touch-none cursor-pointer
                                    w-40 px-4 py-2 rounded-lg text-sm font-bold transition-all
@@ -95,20 +95,20 @@
 
             {% else %}
             <!-- Empty State -->
-            <div class="text-center py-8 border-b border-neutral-200 dark:border-gray-700">
-                <p class="text-neutral-500 dark:text-gray-400">You haven't connected any social accounts yet.</p>
+            <div class="text-center py-8 border-b border-secondary-200 dark:border-secondary-700">
+                <p class="text-secondary-500 dark:text-secondary-400">You haven't connected any social accounts yet.</p>
             </div>
             {% endif %}
 
             <!-- 2. Add New Connection -->
             <div class="mt-8">
-                <h3 class="text-lg font-bold text-neutral-800 dark:text-white mb-4">Connect New Account</h3>
+                <h3 class="text-lg font-bold text-secondary-800 dark:text-white mb-4">Connect New Account</h3>
                 
                 <div class="flex flex-wrap gap-3">
                     {% get_providers as socialaccount_providers %}
                     {% for provider in socialaccount_providers %}
                     <a href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}" 
-                       class="flex items-center gap-3 px-6 py-2.5 bg-white dark:bg-gray-700 border border-neutral-300 dark:border-gray-600 hover:bg-neutral-50 dark:hover:bg-gray-600 text-neutral-700 dark:text-white font-bold rounded-lg transition-colors cursor-pointer w-full justify-center">
+                       class="flex items-center gap-3 px-6 py-2.5 bg-white dark:bg-secondary-700 border border-secondary-300 dark:border-secondary-600 hover:bg-secondary-50 dark:hover:bg-secondary-600 text-secondary-700 dark:text-white font-bold rounded-lg transition-colors cursor-pointer w-full justify-center">
                         {% if provider.id == 'google' %}
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                         {% endif %}
@@ -135,11 +135,11 @@
     function updateSelection(radio) {
         document.querySelectorAll('.social-row').forEach(row => {
             row.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'dark:border-primary-500');
-            row.classList.add('border-neutral-200', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
+            row.classList.add('border-secondary-200', 'dark:border-secondary-700', 'bg-white', 'dark:bg-secondary-800');
         });
         
         const row = radio.closest('label');
-        row.classList.remove('border-neutral-200', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
+        row.classList.remove('border-secondary-200', 'dark:border-secondary-700', 'bg-white', 'dark:bg-secondary-800');
         row.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'dark:border-primary-500');
     }
 
