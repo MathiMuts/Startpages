@@ -8,7 +8,7 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         {% tailwind_css %}
         <script>
-            // Instantly apply theme from cookie or fallback to a default
+            // Instantly apply theme from cookie, fetch from server for logged-in users, or fallback to a default.
             (() => {
                 const getCookie = (name) => {
                     const value = `; ${document.cookie}`;
@@ -17,19 +17,21 @@
                     return null;
                 };
 
-                let themeData;
-                try {
-                    const cookieData = getCookie('theme_data');
-                    if (cookieData) {
-                        themeData = JSON.parse(decodeURIComponent(cookieData));
+                const setCookie = (name, value, days = 365) => {
+                    let expires = "";
+                    if (days) {
+                        const date = new Date();
+                        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                        expires = "; expires=" + date.toUTCString();
                     }
-                } catch (e) {
-                    console.error('Error parsing theme cookie', e);
-                }
+                    const encodedValue = encodeURIComponent(JSON.stringify(value));
+                    document.cookie = `${name}=${encodedValue || ""}${expires}; path=/`;
+                };
 
-                // If theme data is successfully loaded from cookie, apply it
-                if (themeData) {
-                    // Apply dark/light mode from cookie
+                const applyTheme = (themeData) => {
+                    if (!themeData) return;
+
+                    // Apply dark/light mode from theme data
                     if (themeData.is_dark) {
                         document.documentElement.classList.add('dark');
                     } else {
@@ -38,6 +40,9 @@
 
                     // Apply theme colors via a dynamic style tag
                     if (themeData.colors && typeof themeData.colors === 'object') {
+                        const oldStyle = document.getElementById('dynamic-theme-styles');
+                        if (oldStyle) oldStyle.remove();
+
                         const style = document.createElement('style');
                         style.id = 'dynamic-theme-styles';
                         let cssText = ':root {';
@@ -48,9 +53,59 @@
                         style.appendChild(document.createTextNode(cssText));
                         document.head.appendChild(style);
                     }
-                } else {
-                    // If no cookie is found, default to dark mode.
+                };
+
+                const applyDefaultTheme = () => {
+                    // Default to dark mode if no cookie or user theme is found
                     document.documentElement.classList.add('dark');
+                };
+
+                // --- Main Logic ---
+
+                // 1. Try to get theme from cookie (fastest path)
+                let themeDataFromCookie = null;
+                try {
+                    const cookieData = getCookie('theme_data');
+                    if (cookieData) {
+                        themeDataFromCookie = JSON.parse(decodeURIComponent(cookieData));
+                    }
+                } catch (e) {
+                    console.error('Error parsing theme cookie', e);
+                }
+
+                if (themeDataFromCookie) {
+                    // Cookie found, apply it and we're done.
+                    applyTheme(themeDataFromCookie);
+                } else {
+                    // No cookie, so apply a default theme immediately to prevent a flash of unstyled content.
+                    applyDefaultTheme();
+
+                    // Then, check if the user is logged in and try to fetch their saved theme.
+                    const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+                    
+                    if (isAuthenticated) {
+                        fetch('/api/get-theme/')
+                            .then(response => {
+                                if (!response.ok) throw new Error('Failed to fetch theme');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.status === 'success' && data.theme) {
+                                    // API returned a theme, apply it and set the cookie for next time.
+                                    const serverThemeData = {
+                                        is_dark: data.theme.is_dark,
+                                        colors: data.theme.css_variables
+                                    };
+                                    applyTheme(serverThemeData);
+                                    setCookie('theme_data', serverThemeData);
+                                }
+                                // If API call is fine but no theme is set, the default we already applied remains.
+                            })
+                            .catch(error => {
+                                // API call failed. The default theme we applied remains.
+                                console.error("Could not fetch user theme:", error);
+                            });
+                    }
                 }
             })();
         </script>
