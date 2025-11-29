@@ -3,37 +3,139 @@ document.addEventListener('DOMContentLoaded', () => {
     switchTab(urlParams.get('tab') || 'personal');
     initPageDeleteLogic();
     
-    // Profile Dark Mode Toggle
-    const toggle = document.getElementById("profile-dark-mode-toggle");
-    if (toggle) {
-        toggle.addEventListener("click", () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            dot.classList.toggle('translate-x-0', !isDark);
-            dot.classList.toggle('translate-x-6', isDark);
+    // --- Theme Selection Logic ---
+    const themeBtns = document.querySelectorAll('.theme-btn');
+    themeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const themeId = btn.getAttribute('data-theme-id');
+            const isDark = btn.getAttribute('data-is-dark') === 'true';
+            
+            let colors = {};
+            try {
+                const colorsData = btn.getAttribute('data-colors');
+                if (!colorsData) throw new Error('data-colors attribute is missing or empty.');
+                colors = JSON.parse(colorsData);
+            } catch (err) {
+                console.error('Could not parse theme colors:', err);
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Could not apply theme colors.', 'error');
+                }
+                return;
+            }
+            
+            setTheme(themeId, isDark, colors);
         });
-        // Set initial position
-        if (document.documentElement.classList.contains('dark')) {
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            dot.classList.remove('translate-x-0');
-            dot.classList.add('translate-x-6');
-        }
-    }
+    });
 });
+
+function getCsrfToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+}
+
+function applyTheme(colors, isDark) {
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
+    let styleTag = document.getElementById('dynamic-theme-styles');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-theme-styles';
+        document.head.appendChild(styleTag);
+    }
+    
+    let cssText = ':root {';
+    for (const [key, value] of Object.entries(colors)) {
+        cssText += `${key}: ${value};`;
+    }
+    cssText += '}';
+    styleTag.textContent = cssText;
+}
+
+function saveThemeToCookie(colors, isDark) {
+    const themeData = {
+        colors: colors,
+        is_dark: isDark,
+    };
+    const cookieValue = encodeURIComponent(JSON.stringify(themeData));
+    document.cookie = `theme_data=${cookieValue};path=/;max-age=31536000;SameSite=Lax`;
+}
+
+function setTheme(themeId, isDark, colors) {
+    // 1. Update UI active state (Visual selection)
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('ring-primary-600', 'dark:ring-primary-500');
+        btn.classList.add('ring-transparent');
+        
+        // BUGFIX: Select only the checkmark overlay by its specific class to avoid removing color previews.
+        const checkmark = btn.querySelector('.theme-active-indicator');
+        if (checkmark) {
+            checkmark.remove();
+        }
+    });
+
+    const activeBtn = document.querySelector(`.theme-btn[data-theme-id="${themeId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.remove('ring-transparent');
+        activeBtn.classList.add('ring-primary-600', 'dark:ring-primary-500');
+        
+        const checkmarkEl = document.createElement('div');
+        // BUGFIX: Add the specific 'theme-active-indicator' class so we can reliably find and remove this element later.
+        checkmarkEl.className = "theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]";
+        checkmarkEl.innerHTML = `<svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+        activeBtn.appendChild(checkmarkEl);
+    }
+
+    // 2. Apply Theme to the page and save it in a cookie
+    applyTheme(colors, isDark);
+    saveThemeToCookie(colors, isDark);
+
+    // 3. Save Preference to the backend via API
+    fetch('/api/update-theme/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ theme_id: themeId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Theme updated successfully!', 'success');
+            }
+        } else {
+            if (typeof window.showToast === 'function') {
+                window.showToast(data.message || 'Failed to update theme.', 'error');
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Error saving theme:', err);
+        if (typeof window.showToast === 'function') {
+            window.showToast('Could not save theme preference.', 'error');
+        }
+    });
+}
 
 window.switchTab = function(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(el => {
         el.classList.remove('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
-        el.classList.add('text-neutral-600', 'dark:text-gray-300');
+        el.classList.add('text-secondary-600', 'dark:text-secondary-300');
     });
 
     const content = document.getElementById('tab-' + tabName);
     const btn = document.getElementById('tab-btn-' + tabName);
     if(content) content.classList.remove('hidden');
     if(btn) {
-        btn.classList.remove('text-neutral-600', 'dark:text-gray-300');
+        btn.classList.remove('text-secondary-600', 'dark:text-secondary-300');
         btn.classList.add('bg-primary-100', 'text-primary-700', 'dark:bg-primary-900/50', 'dark:text-primary-300');
     }
     const url = new URL(window.location);
@@ -81,15 +183,12 @@ function initPageDeleteLogic() {
         isReadyToDelete = false;
         textSpan.innerText = "Hold...";
         
-        // 1. Reset
         fillBar.style.transition = 'none';
         fillBar.style.width = '0%';
         fillBar.style.opacity = '1'; 
         
-        // 2. Reflow
         void fillBar.offsetWidth;
         
-        // 3. Animate
         fillBar.style.transition = `width ${holdDuration}ms linear`;
         fillBar.style.width = '100%';
         
@@ -102,7 +201,6 @@ function initPageDeleteLogic() {
     const end = (e) => {
         clearTimeout(timer);
         
-        // Check abort
         const isAborted = e.type === 'mouseleave' || e.type === 'touchcancel';
         
         if (isReadyToDelete && !isAborted) {

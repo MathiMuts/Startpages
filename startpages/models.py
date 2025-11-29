@@ -49,9 +49,20 @@ class GlobalSettings(models.Model):
     def __str__(self):
         return "Global Settings"
 
+class ColorScheme(models.Model):
+    settings = models.ForeignKey(GlobalSettings, on_delete=models.CASCADE, related_name='themes')
+    name = models.CharField(max_length=100)
+    is_dark = models.BooleanField(default=False, help_text="Does this theme use dark mode?")
+    preview_colors = models.JSONField(default=list, help_text="List of 4 hex codes for the UI preview")
+    css_variables = models.JSONField(default=dict, help_text="Dictionary mapping CSS variable names to values")
+
+    def __str__(self):
+        return self.name
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    theme = models.ForeignKey(ColorScheme, on_delete=models.SET_NULL, null=True, blank=True, related_name='profiles')
 
     def __str__(self):
         return f"{self.user.username}'s profile"
@@ -65,7 +76,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
     
-# INFO: Notification Signal
 @receiver(post_save, sender=User)
 def notify_new_registration(sender, instance, created, **kwargs):
     if created:

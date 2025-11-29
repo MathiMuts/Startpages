@@ -48,3 +48,5 @@ LOGOUT_REDIRECT_URL="/"
 
 NTFY_BASE_URL = os.environ.get("NTFY_BASE_URL")
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC")
+
+SESSION_COOKIE_AGE=2592000 # 30 days in seconds

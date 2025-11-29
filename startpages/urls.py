@@ -30,8 +30,9 @@ urlpatterns = [
     path('api/save-item-details/', api.save_item_details, name='save_item_details'),
     path('api/add-link/', api.add_link, name='add_link'),
     path('api/add-section/', api.add_section, name='add_section'),
-    path('api/add-section/', api.add_section, name='add_section'),
     path('api/delete-item/', api.delete_item, name='delete_item'),
+    path('api/update-theme/', api.update_theme, name='update_theme'),
+    path('api/get-theme/', api.get_current_theme, name='get_current_theme'),
     
     # User specific page
     path('<str:username>/<slug:slug>/', views.index, name='detail')

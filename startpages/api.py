@@ -1,12 +1,10 @@
-# startpages/api.py
-
 import json
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.db import models
-from .models import Section, Link, StartPage
+from .models import Section, Link, StartPage, ColorScheme
 
 @login_required
 @require_POST
@@ -174,3 +172,42 @@ def delete_item(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid type'}, status=400)
         
     return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def update_theme(request):
+    data = json.loads(request.body)
+    theme_id = data.get('theme_id')
+    
+    if not theme_id:
+        return JsonResponse({'status': 'error', 'message': 'Theme ID required'}, status=400)
+    
+    try:
+        theme = ColorScheme.objects.get(pk=theme_id)
+        request.user.profile.theme = theme
+        request.user.profile.save()
+        return JsonResponse({'status': 'success'})
+    except ColorScheme.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Theme not found'}, status=404)
+    
+@login_required
+def get_current_theme(request):
+    try:
+        profile = request.user.profile
+        theme = profile.theme
+        
+        if not theme:
+            return JsonResponse({'theme': None})
+            
+        return JsonResponse({
+            'status': 'success',
+            'theme': {
+                'id': theme.id,
+                'name': theme.name,
+                'is_dark': theme.is_dark,
+                'preview_colors': theme.preview_colors,
+                'css_variables': theme.css_variables
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

@@ -1,19 +1,56 @@
 <div id="tab-customization" class="tab-content hidden animate-fade-in">
-    <h2 class="text-2xl font-bold text-neutral-800 dark:text-white mb-6">Customization</h2>
+    <h2 class="text-2xl font-bold text-secondary-800 dark:text-white mb-6">Customization</h2>
     <div class="space-y-6">
-        <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-gray-900/50 rounded-xl border border-neutral-200 dark:border-gray-700">
+
+        <div class="flex flex-col gap-4 p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
             <div>
-                <h3 class="font-bold text-neutral-800 dark:text-white">App Theme</h3>
-                <p class="text-sm text-neutral-500">Toggle between Light and Dark mode.</p>
+                <h3 class="font-bold text-secondary-800 dark:text-white">App Theme</h3>
+                <p class="text-sm text-secondary-500">Select a theme for your profile.</p>
             </div>
-            <button id="profile-dark-mode-toggle" type="button" class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-neutral-200 dark:bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
-                <span class="sr-only">Use setting</span>
-                <span aria-hidden="true" class="pointer-events-none h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0 dark:translate-x-6 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-amber-500 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <svg class="w-4 h-4 text-primary-500 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                </span>
-            </button>
+            
+            <div class="flex flex-wrap gap-4 pt-2">
+                {% for theme in themes %}
+                {% with active_theme_id=request.user.profile.theme.id %}
+                <button type="button" 
+                        class="theme-btn cursor-pointer relative w-12 h-12 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900
+                        {% if active_theme_id == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
+                        data-theme-id="{{ theme.id }}"
+                        data-is-dark="{{ theme.is_dark|yesno:'true,false' }}"
+                        data-colors='{{ theme.colors_json }}'
+                        title="{{ theme.name }}">
+                    
+                    <!-- Top Triangle -->
+                    <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.0 }}; clip-path: polygon(0 0, 100% 0, 50% 50%);"></div>
+                    <!-- Right Triangle -->
+                    <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.1 }}; clip-path: polygon(100% 0, 100% 100%, 50% 50%);"></div>
+                    <!-- Bottom Triangle -->
+                    <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.2 }}; clip-path: polygon(100% 100%, 0 100%, 50% 50%);"></div>
+                    <!-- Left Triangle -->
+                    <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.3 }}; clip-path: polygon(0 100%, 0 0, 50% 50%);"></div>
+                    
+                    <!-- Active Indicator (checkmark) -->
+                    {% if active_theme_id == theme.id %}
+                    {% comment %} Added 'theme-active-indicator' class to uniquely identify the checkmark overlay for removal. {% endcomment %}
+                    <div class="theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]">
+                        <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    {% endif %}
+                </button>
+                {% endwith %}
+                {% endfor %}
+            </div>
         </div>
-        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm">More customization options coming soon!</div>
+        
+        {% comment %} <div class="flex items-center justify-between p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
+            <div>
+                <h3 class="font-bold text-secondary-800 dark:text-white">Show localhost input</h3>
+                <p class="text-sm text-secondary-500">Show an input in the TODO: to input a port to connect to via localhost.</p>
+            </div>
+            <button id="localhost-input-toggle" type="button" class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-secondary-200 dark:bg-primary-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
+                <span class="sr-only">Use setting</span>
+                <span aria-hidden="true" class="pointer-events-none h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0 dark:translate-x-6 flex items-center justify-center"></span>
+            </button>
+        </div> {% endcomment %}
+
     </div>
 </div>

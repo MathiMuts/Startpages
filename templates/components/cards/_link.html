@@ -1,7 +1,7 @@
 <div class="{% if not is_preview %}draggable-link{% endif %} relative rounded-md group/link transition-colors duration-200 border border-transparent"
      {% if not is_preview %}data-id="{{ link.id }}"{% endif %}>
     <a href="{{ link.url }}"
-       class="edit-mode-disable flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-gray-900 dark:hover:text-white rounded-md transition-colors"
+       class="edit-mode-disable flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors"
        data-edit-target="name">
        <div class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
            <span class="link-dot absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0 {% if not link.color %}bg-primary-500{% endif %}"

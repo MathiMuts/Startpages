@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import StartPage, Profile
+from .models import StartPage, Profile, ColorScheme
 from .forms import UsernameChangeForm
 from .services import StartPageService
 from allauth.socialaccount.models import SocialAccount # pyright: ignore[reportMissingImports]
@@ -32,10 +32,23 @@ def index(request, username=None, slug=None):
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
     google_accounts = request.user.socialaccount_set.filter(provider='google')
+    themes_qs = ColorScheme.objects.all()
+    
+    themes = []
+    for theme in themes_qs:
+        themes.append({
+            'id': theme.id,
+            'name': theme.name,
+            'is_dark': theme.is_dark,
+            'preview_colors': theme.preview_colors,
+            'colors_json': json.dumps(theme.css_variables)
+        })
+    
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,
         'google_accounts': google_accounts,
-        'tab': request.GET.get('tab', 'personal')
+        'tab': request.GET.get('tab', 'personal'),
+        'themes': themes
     })
 
 @login_required
@@ -75,7 +88,6 @@ def create_startpage(request):
 @login_required
 def set_default_page(request, page_id):
     page = get_object_or_404(StartPage, id=page_id, user=request.user)
-    # Unset other defaults (optional, but good practice if model doesn't handle it)
     StartPage.objects.filter(user=request.user, is_default=True).update(is_default=False)
     page.is_default = True
     page.save()
