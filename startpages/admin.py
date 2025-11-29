@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StartPage, Section, Link
+from .models import GlobalSettings, StartPage, Section, Link
 
 class LinkInline(admin.TabularInline):
     model = Link
@@ -24,6 +24,7 @@ class StartPageAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     search_fields = ('user__username', 'title')
 
+admin.site.register(GlobalSettings)
 admin.site.register(StartPage, StartPageAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(Link)
