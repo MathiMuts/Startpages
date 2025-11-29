@@ -12,10 +12,11 @@
                 {% for theme in themes %}
                 {% with active_theme_id=request.user.profile.theme.id %}
                 <button type="button" 
-                        class="theme-btn relative w-12 h-12 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900
+                        class="theme-btn cursor-pointer relative w-12 h-12 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900
                         {% if active_theme_id == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
                         data-theme-id="{{ theme.id }}"
                         data-is-dark="{{ theme.is_dark|yesno:'true,false' }}"
+                        data-colors='{{ theme.colors_json }}'
                         title="{{ theme.name }}">
                     
                     <!-- Top Triangle -->
@@ -29,7 +30,8 @@
                     
                     <!-- Active Indicator (checkmark) -->
                     {% if active_theme_id == theme.id %}
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]">
+                    {% comment %} Added 'theme-active-indicator' class to uniquely identify the checkmark overlay for removal. {% endcomment %}
+                    <div class="theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]">
                         <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     {% endif %}

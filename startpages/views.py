@@ -32,7 +32,17 @@ def index(request, username=None, slug=None):
 def profile(request):
     startpages = StartPage.objects.filter(user=request.user).order_by('-is_default', 'title')
     google_accounts = request.user.socialaccount_set.filter(provider='google')
-    themes = ColorScheme.objects.all()
+    themes_qs = ColorScheme.objects.all()
+    
+    themes = []
+    for theme in themes_qs:
+        themes.append({
+            'id': theme.id,
+            'name': theme.name,
+            'is_dark': theme.is_dark,
+            'preview_colors': theme.preview_colors,
+            'colors_json': json.dumps(theme.css_variables)
+        })
     
     return render(request, 'startpages/pages/profile.html', {
         'startpages': startpages,

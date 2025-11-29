@@ -9,34 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const themeId = btn.getAttribute('data-theme-id');
-            // Convert string 'true'/'false' to boolean
             const isDark = btn.getAttribute('data-is-dark') === 'true';
             
-            setTheme(themeId, isDark);
+            let colors = {};
+            try {
+                const colorsData = btn.getAttribute('data-colors');
+                if (!colorsData) throw new Error('data-colors attribute is missing or empty.');
+                colors = JSON.parse(colorsData);
+            } catch (err) {
+                console.error('Could not parse theme colors:', err);
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Could not apply theme colors.', 'error');
+                }
+                return;
+            }
+            
+            setTheme(themeId, isDark, colors);
         });
     });
-
-    // --- Existing Dark Mode Toggle (Header/Sidebar if present) ---
-    const toggle = document.getElementById("profile-dark-mode-toggle");
-    if (toggle) {
-        toggle.addEventListener("click", () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            if(dot) {
-                dot.classList.toggle('translate-x-0', !isDark);
-                dot.classList.toggle('translate-x-6', isDark);
-            }
-        });
-        // Set initial position
-        if (document.documentElement.classList.contains('dark')) {
-            const dot = toggle.querySelector('span[aria-hidden="true"]');
-            if(dot) {
-                dot.classList.remove('translate-x-0');
-                dot.classList.add('translate-x-6');
-            }
-        }
-    }
 });
 
 function getCsrfToken() {
@@ -45,43 +35,67 @@ function getCsrfToken() {
         ?.split('=')[1];
 }
 
-function setTheme(themeId, isDark) {
+function applyTheme(colors, isDark) {
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
+    let styleTag = document.getElementById('dynamic-theme-styles');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-theme-styles';
+        document.head.appendChild(styleTag);
+    }
+    
+    let cssText = ':root {';
+    for (const [key, value] of Object.entries(colors)) {
+        cssText += `${key}: ${value};`;
+    }
+    cssText += '}';
+    styleTag.textContent = cssText;
+}
+
+function saveThemeToCookie(colors, isDark) {
+    const themeData = {
+        colors: colors,
+        is_dark: isDark,
+    };
+    const cookieValue = encodeURIComponent(JSON.stringify(themeData));
+    document.cookie = `theme_data=${cookieValue};path=/;max-age=31536000;SameSite=Lax`;
+}
+
+function setTheme(themeId, isDark, colors) {
     // 1. Update UI active state (Visual selection)
     document.querySelectorAll('.theme-btn').forEach(btn => {
-        // Reset rings
         btn.classList.remove('ring-primary-600', 'dark:ring-primary-500');
         btn.classList.add('ring-transparent');
         
-        // Remove existing checkmark overlay if present
-        const svg = btn.querySelector('svg');
-        if (svg && svg.parentElement && svg.parentElement.classList.contains('absolute')) {
-            svg.parentElement.remove();
+        // BUGFIX: Select only the checkmark overlay by its specific class to avoid removing color previews.
+        const checkmark = btn.querySelector('.theme-active-indicator');
+        if (checkmark) {
+            checkmark.remove();
         }
     });
 
-    // Activate clicked button
     const activeBtn = document.querySelector(`.theme-btn[data-theme-id="${themeId}"]`);
     if (activeBtn) {
-        // Add rings
         activeBtn.classList.remove('ring-transparent');
         activeBtn.classList.add('ring-primary-600', 'dark:ring-primary-500');
         
-        // Inject Checkmark HTML
-        const checkmark = document.createElement('div');
-        checkmark.className = "absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]";
-        checkmark.innerHTML = `<svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
-        activeBtn.appendChild(checkmark);
+        const checkmarkEl = document.createElement('div');
+        // BUGFIX: Add the specific 'theme-active-indicator' class so we can reliably find and remove this element later.
+        checkmarkEl.className = "theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]";
+        checkmarkEl.innerHTML = `<svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+        activeBtn.appendChild(checkmarkEl);
     }
 
-    // // 2. Apply Theme TODO: FIXME:
-    // Dark/Light mode immediately
-    // if (isDark) {
-    //     document.documentElement.classList.add('dark');
-    // } else {
-    //     document.documentElement.classList.remove('dark');
-    // }
+    // 2. Apply Theme to the page and save it in a cookie
+    applyTheme(colors, isDark);
+    saveThemeToCookie(colors, isDark);
 
-    // 3. Save Preference via API
+    // 3. Save Preference to the backend via API
     fetch('/api/update-theme/', {
         method: 'POST',
         headers: {
@@ -169,15 +183,12 @@ function initPageDeleteLogic() {
         isReadyToDelete = false;
         textSpan.innerText = "Hold...";
         
-        // 1. Reset
         fillBar.style.transition = 'none';
         fillBar.style.width = '0%';
         fillBar.style.opacity = '1'; 
         
-        // 2. Reflow
         void fillBar.offsetWidth;
         
-        // 3. Animate
         fillBar.style.transition = `width ${holdDuration}ms linear`;
         fillBar.style.width = '100%';
         
@@ -190,7 +201,6 @@ function initPageDeleteLogic() {
     const end = (e) => {
         clearTimeout(timer);
         
-        // Check abort
         const isAborted = e.type === 'mouseleave' || e.type === 'touchcancel';
         
         if (isReadyToDelete && !isAborted) {

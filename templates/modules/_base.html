@@ -8,17 +8,50 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         {% tailwind_css %}
         <script>
+            // Instantly apply theme from cookie or fallback to a default
             (() => {
-              let theme;
-              try {
-                theme = localStorage.getItem('theme');
-              } catch (e) {}
+                const getCookie = (name) => {
+                    const value = `; ${document.cookie}`;
+                    const parts = value.split(`; ${name}=`);
+                    if (parts.length === 2) return parts.pop().split(';').shift();
+                    return null;
+                };
 
-              if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-              } else {
-                document.documentElement.classList.remove('dark');
-              }
+                let themeData;
+                try {
+                    const cookieData = getCookie('theme_data');
+                    if (cookieData) {
+                        themeData = JSON.parse(decodeURIComponent(cookieData));
+                    }
+                } catch (e) {
+                    console.error('Error parsing theme cookie', e);
+                }
+
+                // If theme data is successfully loaded from cookie, apply it
+                if (themeData) {
+                    // Apply dark/light mode from cookie
+                    if (themeData.is_dark) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+
+                    // Apply theme colors via a dynamic style tag
+                    if (themeData.colors && typeof themeData.colors === 'object') {
+                        const style = document.createElement('style');
+                        style.id = 'dynamic-theme-styles';
+                        let cssText = ':root {';
+                        for (const [key, value] of Object.entries(themeData.colors)) {
+                            cssText += `${key}: ${value};`;
+                        }
+                        cssText += '}';
+                        style.appendChild(document.createTextNode(cssText));
+                        document.head.appendChild(style);
+                    }
+                } else {
+                    // If no cookie is found, default to dark mode.
+                    document.documentElement.classList.add('dark');
+                }
             })();
         </script>
     </head>
