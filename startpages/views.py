@@ -6,24 +6,32 @@ from django.http import JsonResponse
 from .models import StartPage, Profile, ColorScheme
 from .forms import UsernameChangeForm
 from .services import StartPageService
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from allauth.socialaccount.models import SocialAccount # pyright: ignore[reportMissingImports]
 
-def home(request):
+def index(request):
     return render(request, 'startpages/pages/index.html')
-    
-def index(request, username=None, slug=None):
+
+@login_required
+def startpage(request, username=None, slug=None): 
     page = None
-    if username and slug and request.user.is_authenticated:
+    if username and request.user.username.lower() != username.lower():
+        raise PermissionDenied
+    
+    if username and slug:
         if request.user.username.lower() == username.lower():
-            page = get_object_or_404(StartPage, user__username__iexact=username, slug=slug)
-    elif request.user.is_authenticated:
+            page = get_object_or_404(StartPage, user=request.user, slug=slug)
+            
+    else:
         page = StartPage.objects.filter(user=request.user, is_default=True).first()
+        
         if not page:
             page = StartPage.objects.filter(user=request.user).first()
-    
+            
     if not page:
-        return render(request, 'startpages/pages/index.html')
-
+        raise Http404("No StartPage found for this user.")
+    
     sections = page.sections.prefetch_related('links').all()
     context = {'page': page, 'sections': sections}
     return render(request, 'startpages/pages/startpage.html', context)
