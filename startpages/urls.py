@@ -9,7 +9,7 @@ app_name = 'startpages'
 urlpatterns = [
     # Main page
     path('', views.index, name='index'),
-    path('home', views.home, name='home'),
+    path('home', views.index, name='index'),
     
     # Profile & Settings
     path('profile/', views.profile, name='profile'),
@@ -35,5 +35,6 @@ urlpatterns = [
     path('api/get-theme/', api.get_current_theme, name='get_current_theme'),
     
     # User specific page
-    path('<str:username>/<slug:slug>/', views.index, name='detail')
+    path('<str:username>/', views.startpage, name='startpage'),
+    path('<str:username>/<slug:slug>/', views.startpage, name='startpage')
 ]
