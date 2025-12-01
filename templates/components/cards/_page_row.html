@@ -8,7 +8,7 @@
         <div>
             <h3 class="font-bold text-secondary-800 dark:text-white text-lg">{{ page.title }}</h3>
             <object class="text-xs text-primary-500 hover:underline">
-                <a href="{% url 'startpages:detail' user.username page.slug %}" target="_blank" onclick="event.stopPropagation()">/{{ user.username }}/{{ page.slug }}</a>
+                <a href="{% url 'startpages:startpage' user.username page.slug %}" target="_blank" onclick="event.stopPropagation()">/{{ user.username }}/{{ page.slug }}</a>
             </object>
         </div>
     </div>

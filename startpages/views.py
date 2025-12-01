@@ -88,7 +88,7 @@ def create_startpage(request):
             is_first = not StartPage.objects.filter(user=request.user).exists()
             new_page = StartPage.objects.create(user=request.user, title=title, is_default=is_first)
             messages.success(request, f'Startpage "{title}" created!')
-            return redirect('startpages:detail', username=request.user.username, slug=new_page.slug)
+            return redirect('startpages:startpage', username=request.user.username, slug=new_page.slug)
         else:
             messages.error(request, 'Title is required.')
     return redirect(reverse('startpages:profile') + '?tab=startpages')
