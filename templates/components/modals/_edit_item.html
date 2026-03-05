@@ -18,19 +18,49 @@
                                 <label for="edit-name" class="block text-sm font-semibold text-secondary-700 dark:text-secondary-300 mb-1.5">Name</label>
                                 <input type="text" id="edit-name" name="name" required autocomplete="off" class="block w-full rounded-lg border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900/50 text-secondary-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4 sm:text-sm">
                             </div>
-                            <div id="color-field-group" class="col-span-1">
+                            <div id="color-field-group" class="col-span-1 relative">
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Color</label>
-                                    <div id="color-preview" class="w-4 h-4 rounded-full border border-secondary-200 dark:border-secondary-600 bg-transparent"></div>
+                                    <div id="color-preview" class="w-4 h-4 rounded-full border border-secondary-200 dark:border-secondary-600 bg-transparent transition-colors duration-200"></div>
                                 </div>
-                                <input type="text" id="edit-color" name="color" maxlength="7" placeholder="Default" class="block w-full rounded-lg border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900/50 text-secondary-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-3 sm:text-sm uppercase tracking-wider font-mono text-center" oninput="sanitizeColorInput(this)">
+                                <input type="text" id="edit-color" name="color" maxlength="7" placeholder="Default" class="block w-full rounded-lg border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900/50 text-secondary-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-3 sm:text-sm uppercase tracking-wider font-mono text-center relative z-10" oninput="sanitizeColorInput(this)">
+                                
+                                <!-- Color Picker Popover Menu -->
+                                <div id="color-picker-menu" class="absolute z-20 hidden mt-1 w-full min-w-[140px] bg-white dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg shadow-xl p-3 left-[-25%] top-full transition-opacity">
+                                    <div class="grid grid-cols-4 gap-2.5 place-items-center">
+                                        <!-- Swatches -->
+                                        <button type="button" class="w-6 h-6 rounded-full bg-red-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#EF4444')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-orange-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#F97316')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-amber-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#F59E0B')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-green-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#10B981')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-blue-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#3B82F6')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-indigo-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#6366F1')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-purple-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#A855F7')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-pink-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#EC4899')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-slate-500 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#64748B')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-black ring-1 ring-white/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#000000')"></button>
+                                        <button type="button" class="w-6 h-6 rounded-full bg-white ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer" onclick="setColor('#FFFFFF')"></button>
+                                        
+                                        <!-- Clear / Default -->
+                                        <button type="button" title="Clear Color" class="w-6 h-6 rounded-full bg-transparent border border-secondary-300 dark:border-secondary-600 ring-1 ring-black/10 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center relative overflow-hidden" onclick="setColor('')">
+                                            <div class="absolute w-[120%] h-[1.5px] bg-red-500 rotate-45"></div>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Native Color Picker Option -->
+                                    <div class="mt-3 pt-2 border-t border-secondary-100 dark:border-secondary-700 text-center">
+                                        <label class="block text-xs text-primary-600 dark:text-primary-400 font-semibold cursor-pointer hover:underline">
+                                            Custom Color
+                                            <input type="color" class="hidden" onchange="setColor(this.value)">
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div id="url-field-group">
                             <label for="edit-url" class="block text-sm font-semibold text-secondary-700 dark:text-secondary-300 mb-1.5">URL</label>
                             <div class="relative rounded-md shadow-sm">
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><span class="text-secondary-500 sm:text-sm">https://</span></div>
-                                <input type="text" inputmode="url" id="edit-url" name="url" autocomplete="off" class="block w-full rounded-lg border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900/50 text-secondary-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 pl-16 py-3 px-4 sm:text-sm" placeholder="example.com">
+                                <input type="text" inputmode="url" id="edit-url" name="url" autocomplete="off" class="block w-full rounded-lg border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900/50 text-secondary-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4 sm:text-sm" placeholder="https://example.com">
                             </div>
                         </div>
                         <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-flow-row-dense">
@@ -47,3 +77,48 @@
         </div>
     </div>
 </div>
+<script>
+    // Function triggered by clicking swatches or the native picker
+    function setColor(hex) {
+        const input = document.getElementById('edit-color');
+        
+        // Update input
+        input.value = hex.toUpperCase();
+        
+        // Hide the menu
+        document.getElementById('color-picker-menu').classList.add('hidden');
+        
+        // Trigger the input event to run your existing sanitizeColorInput function 
+        // and instantly update the preview dot
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const colorInput = document.getElementById('edit-color');
+        const colorMenu = document.getElementById('color-picker-menu');
+        const colorPreview = document.getElementById('color-preview');
+
+        // Show the color picker on focus
+        colorInput.addEventListener('focus', () => {
+            colorMenu.classList.remove('hidden');
+        });
+
+        // Hide the color picker when clicking anywhere else outside of it
+        document.addEventListener('mousedown', (e) => {
+            if (!colorInput.contains(e.target) && !colorMenu.contains(e.target)) {
+                colorMenu.classList.add('hidden');
+            }
+        });
+
+        // Make sure the preview updates dynamically when manually typing a hex
+        colorInput.addEventListener('input', (e) => {
+            let val = e.target.value.trim();
+            // Simple validation to ensure it doesn't try to render an invalid color
+            if(/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
+                colorPreview.style.backgroundColor = val;
+            } else {
+                colorPreview.style.backgroundColor = 'transparent';
+            }
+        });
+    });
+</script>
