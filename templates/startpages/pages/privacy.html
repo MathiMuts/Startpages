@@ -1,0 +1,61 @@
+{% extends "../../modules/_base.html" %}
+{% load static %}
+
+{% block title %}Privacy — Startpages{% endblock title %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-24 sm:py-28">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline mb-8">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Back
+    </a>
+
+    <h1 class="font-display font-bold text-4xl sm:text-5xl tracking-tight text-secondary-900 dark:text-white">Privacy</h1>
+    <p class="mt-3 text-secondary-500 dark:text-secondary-400">Last updated {% now "F Y" %}.</p>
+
+    <div class="mt-10 space-y-10 text-secondary-700 dark:text-secondary-300 leading-relaxed">
+
+        <section>
+            <p>Startpages is a personal homepage builder. This page explains what it stores, why, and what you can do about it. In short: your pages are yours, they're visible only to you, and nothing you save is sold or used to advertise to you.</p>
+        </section>
+
+        <section>
+            <h2 class="font-bold text-xl text-secondary-900 dark:text-white mb-3">What we store</h2>
+            <ul class="space-y-3 list-none">
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Your account.</strong> A username and email address so you can sign in. If you sign in with Google, we store the account identifier and email Google returns.</span></li>
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Your pages.</strong> The startpages, sections, links, colours and theme you create. This is the content of the app.</span></li>
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Your avatar.</strong> A profile image, only if you upload one.</span></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="font-bold text-xl text-secondary-900 dark:text-white mb-3">Cookies</h2>
+            <p>We use a small number of first-party cookies, and no third-party or advertising cookies:</p>
+            <ul class="mt-3 space-y-3 list-none">
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span>A <strong class="text-secondary-900 dark:text-white">session</strong> cookie to keep you signed in, and a <strong class="text-secondary-900 dark:text-white">CSRF</strong> cookie to protect form submissions.</span></li>
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span>A <strong class="text-secondary-900 dark:text-white">theme</strong> cookie that remembers your chosen colours so the page doesn't flash on load.</span></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="font-bold text-xl text-secondary-900 dark:text-white mb-3">How your data is used</h2>
+            <p>Your content is used only to render your startpages back to you. We don't run ad tracking or analytics on the links you save. The site operator may receive an internal notification when a new account is registered, used only to keep an eye on the service — never shared.</p>
+        </section>
+
+        <section>
+            <h2 class="font-bold text-xl text-secondary-900 dark:text-white mb-3">Your choices</h2>
+            <ul class="space-y-3 list-none">
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Export.</strong> Every page can be downloaded as a JSON file from your profile at any time.</span></li>
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Delete.</strong> You can delete individual pages yourself. To remove your account and all associated data, contact the site operator.</span></li>
+                <li class="flex gap-3"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span><span><strong class="text-secondary-900 dark:text-white">Disconnect.</strong> Linked Google accounts can be disconnected from your profile.</span></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="font-bold text-xl text-secondary-900 dark:text-white mb-3">Contact</h2>
+            <p>Questions about your data, or want your account removed? Reach out to the site operator using the contact address listed for this installation.</p>
+        </section>
+    </div>
+</div>
+{% endblock content %}

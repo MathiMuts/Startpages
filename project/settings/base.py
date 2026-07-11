@@ -29,7 +29,7 @@ SITE_ID = 1 # For django-allauth
 
 # INFO: Internationalization
 
-LANGUAGE_CODE = 'nl'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Brussels'
 TIME_FORMAT = 'H:i'

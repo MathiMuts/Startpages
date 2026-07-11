@@ -1,30 +1,28 @@
 <form method="GET" action="https://www.google.com/search" class="w-full max-w-xl mx-auto group">
 
-    <div class="relative flex items-center">
+    <!-- Uses .card-surface so the search bar matches the active card style + colour theme.
+         The data-card-style wrapper is provided by the including page. -->
+    <div class="card-surface relative flex items-center transition-shadow focus-within:ring-2 focus-within:ring-primary-500/40">
         <!-- Input Field -->
-        <input 
-            type="search" 
-            name="as_q" 
+        <input
+            type="search"
+            name="as_q"
             placeholder="Search the web..."
             autofocus=""
             autocomplete="off"
             aria-label="Search"
             class="w-full pl-6 pr-14 py-4
-            rounded-2xl border-2 border-primary-100 dark:border-secondary-700
-            bg-white/80 dark:bg-secondary-800/80 backdrop-blur-md
+            bg-transparent border-0 outline-none
             text-secondary-900 dark:text-white text-lg
             placeholder:text-secondary-400 dark:placeholder:text-secondary-500
-            shadow-lg shadow-primary-200/50 dark:shadow-primary-800/50
-            transform hover:shadow-xl hover:ring-4 hover:ring-primary-500/10
-            focus:ring-4 focus:ring-primary-500/10
-            transition-all duration-300"
+            focus:ring-0"
         >
 
         <!-- Search Button -->
-        <button type="submit" 
-                class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl 
-                       text-primary-500 dark:text-primary-400 
-                       hover:text-white dark:hover:text-white
+        <button type="submit"
+                class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl
+                       text-primary-500 dark:text-primary-400
+                       hover:text-primary-600 dark:hover:text-primary-300
                        transition-all duration-200">
             <span class="sr-only">Search</span>
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

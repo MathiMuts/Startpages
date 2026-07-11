@@ -97,7 +97,7 @@ export const UI = {
         div.setAttribute('data-id', linkData.id);
         
         div.innerHTML = `
-            <a href="${linkData.url}" target="_blank"
+            <a href="${linkData.url}"
                class="edit-mode-disable flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors"
                data-edit-target="name">
                <div class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
@@ -118,11 +118,11 @@ export const UI = {
         const grid = document.getElementById('grid-container');
         const addBtn = grid.querySelector('.add-section-btn');
         const section = document.createElement('section');
-        section.className = "draggable-section bg-white dark:bg-secondary-800 container px-5 pt-4 pb-1 flex flex-col gap-3 rounded-xl text-secondary-900 dark:text-secondary-200 w-full relative group select-none h-[30rem] border-t-4 border-primary-500 dark:border-primary-400 shadow-xl shadow-primary-100/50 dark:shadow-none transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary-200/50 dark:hover:shadow-black/30";
+        section.className = "card-surface draggable-section px-5 pt-4 pb-1 flex flex-col gap-3 text-secondary-900 dark:text-secondary-200 w-full relative group select-none h-[28rem] sm:h-[30rem]";
         section.setAttribute('data-id', sectionData.id);
 
         section.innerHTML = `
-        <div class="flex justify-between items-center section-header pb-2 border-b border-secondary-100 dark:border-secondary-700 cursor-grab active:cursor-grabbing">
+        <div class="card-header flex justify-between items-center section-header pb-2 border-b border-secondary-100 dark:border-secondary-700 cursor-grab active:cursor-grabbing">
             <h2 class="text-xl font-bold truncate pointer-events-none text-secondary-800 dark:text-secondary-100 tracking-tight" data-edit-target="name">${sectionData.name}</h2>
             <a href="#" onclick="openAllLinksInSection(this); return false;" class="text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 edit-mode-hidden transition-colors p-1 rounded-md hover:bg-primary-50 dark:hover:bg-primary-900/30">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>

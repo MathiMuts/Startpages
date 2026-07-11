@@ -96,10 +96,19 @@ class ColorScheme(models.Model):
     def __str__(self):
         return self.name
 
+CARD_STYLES = [
+    ('solid', 'Solid'),
+    ('glass', 'Glass'),
+    ('minimal', 'Minimal'),
+    ('elevated', 'Elevated'),
+    ('dual', 'Dual-tone'),
+]
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     theme = models.ForeignKey(ColorScheme, on_delete=models.SET_NULL, null=True, blank=True, related_name='profiles')
+    card_style = models.CharField(max_length=20, choices=CARD_STYLES, default='solid', help_text="Visual style of the section cards on startpages.")
 
     def __str__(self):
         return f"{self.user.username}'s profile"

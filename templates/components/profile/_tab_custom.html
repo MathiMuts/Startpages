@@ -1,36 +1,126 @@
+{% load static %}
 <div id="tab-customization" class="tab-content hidden animate-fade-in">
     <h2 class="text-2xl font-bold text-secondary-800 dark:text-white mb-6">Customization</h2>
+
     <div class="space-y-6">
 
+        <!-- ===================== LIVE PREVIEW ===================== -->
+        <div>
+            <h3 class="font-bold text-secondary-800 dark:text-white mb-1">Live preview</h3>
+            <p class="text-sm text-secondary-500 mb-3">Changes below apply here instantly.</p>
+
+            <!-- mini backdrop that mimics a real startpage -->
+            <div class="rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-secondary-100 via-secondary-100 to-primary-200/50 dark:from-secondary-900 dark:via-secondary-900 dark:to-primary-950 border border-secondary-200 dark:border-secondary-700">
+                <div id="preview-surface-wrap" data-card-style="{{ request.user.profile.card_style }}" class="max-w-xs mx-auto">
+                    <div class="card-surface px-5 pt-4 pb-3 flex flex-col gap-3 text-secondary-900 dark:text-secondary-200">
+                        <div class="card-header flex justify-between items-center pb-2 border-b border-secondary-100 dark:border-secondary-700">
+                            <h4 class="text-lg font-bold text-secondary-800 dark:text-secondary-100 tracking-tight">Work</h4>
+                            <svg class="h-5 w-5 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <!-- Real link markup so hover behaves exactly like the startpage (dot morphs into an arrow, row highlights) -->
+                            <div class="relative rounded-md group/link">
+                                <a href="#" onclick="return false;" class="flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors">
+                                    <span class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
+                                        <span class="absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0 bg-primary-500"></span>
+                                        <svg class="absolute w-4 h-4 transition-all duration-200 ease-out opacity-0 scale-0 -rotate-45 group-hover/link:rotate-0 group-hover/link:opacity-100 group-hover/link:scale-100 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </span>
+                                    <span class="truncate font-medium text-sm leading-tight pt-0.5">Dashboard</span>
+                                </a>
+                            </div>
+                            <div class="relative rounded-md group/link">
+                                <a href="#" onclick="return false;" class="flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors">
+                                    <span class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
+                                        <span class="absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0" style="background-color:#38bdf8"></span>
+                                        <svg class="absolute w-4 h-4 transition-all duration-200 ease-out opacity-0 scale-0 -rotate-45 group-hover/link:rotate-0 group-hover/link:opacity-100 group-hover/link:scale-100" style="color:#38bdf8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </span>
+                                    <span class="truncate font-medium text-sm leading-tight pt-0.5">Calendar</span>
+                                </a>
+                            </div>
+                            <div class="relative rounded-md group/link">
+                                <a href="#" onclick="return false;" class="flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors">
+                                    <span class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
+                                        <span class="absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0 bg-primary-500"></span>
+                                        <svg class="absolute w-4 h-4 transition-all duration-200 ease-out opacity-0 scale-0 -rotate-45 group-hover/link:rotate-0 group-hover/link:opacity-100 group-hover/link:scale-100 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </span>
+                                    <span class="truncate font-medium text-sm leading-tight pt-0.5">Docs</span>
+                                </a>
+                            </div>
+                            <div class="relative rounded-md group/link">
+                                <a href="#" onclick="return false;" class="flex items-center gap-3 px-3 py-1.5 text-secondary-600 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-secondary-900 dark:hover:text-white rounded-md transition-colors">
+                                    <span class="relative flex items-center justify-center w-4 h-4 flex-shrink-0">
+                                        <span class="absolute w-2 h-2 rounded-full transition-all duration-200 ease-out group-hover/link:opacity-0 group-hover/link:scale-0" style="background-color:#f472b6"></span>
+                                        <svg class="absolute w-4 h-4 transition-all duration-200 ease-out opacity-0 scale-0 -rotate-45 group-hover/link:rotate-0 group-hover/link:opacity-100 group-hover/link:scale-100" style="color:#f472b6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </span>
+                                    <span class="truncate font-medium text-sm leading-tight pt-0.5">Inbox</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== CARD STYLE ===================== -->
         <div class="flex flex-col gap-4 p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
             <div>
-                <h3 class="font-bold text-secondary-800 dark:text-white">App Theme</h3>
-                <p class="text-sm text-secondary-500">Select a theme for your profile.</p>
+                <h3 class="font-bold text-secondary-800 dark:text-white">Card style</h3>
+                <p class="text-sm text-secondary-500">How your section cards look. Your colour theme still applies on top.</p>
             </div>
-            
-            <!-- Container for the theme sections -->
+
+            {% with active_style=request.user.profile.card_style %}
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {% for value, label in card_styles %}
+                <button type="button"
+                        class="card-style-btn cursor-pointer group text-left rounded-xl p-2 border-2 transition-all
+                        {% if active_style == value %}border-primary-500 dark:border-primary-400{% else %}border-transparent hover:border-secondary-300 dark:hover:border-secondary-600{% endif %}"
+                        data-card-style="{{ value }}">
+                    <!-- authentic mini preview for this style -->
+                    <div data-card-style="{{ value }}" class="rounded-lg p-3 bg-gradient-to-br from-secondary-100 to-primary-200/40 dark:from-secondary-800 dark:to-primary-950/60">
+                        <div class="card-surface h-20 px-2.5 pt-2 pb-2 flex flex-col gap-1.5">
+                            <div class="card-header flex items-center pb-1.5 mb-0.5 border-b border-secondary-200 dark:border-secondary-700">
+                                <span class="block h-2 w-1/2 rounded bg-secondary-300 dark:bg-secondary-600"></span>
+                            </div>
+                            <span class="block h-1.5 w-full rounded bg-secondary-200 dark:bg-secondary-700"></span>
+                            <span class="block h-1.5 w-4/5 rounded bg-secondary-200 dark:bg-secondary-700"></span>
+                        </div>
+                    </div>
+                    <span class="block text-center text-sm font-semibold mt-2 text-secondary-700 dark:text-secondary-300 card-style-label">{{ label }}</span>
+                </button>
+                {% endfor %}
+            </div>
+            {% endwith %}
+        </div>
+
+        <!-- ===================== APP THEME ===================== -->
+        <div class="flex flex-col gap-4 p-4 bg-secondary-50 dark:bg-secondary-900/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
+            <div>
+                <h3 class="font-bold text-secondary-800 dark:text-white">Colour theme</h3>
+                <p class="text-sm text-secondary-500">Pick a palette for your pages.</p>
+            </div>
+
             <div class="pt-2 space-y-6">
 
-                <!-- Section for Dark Themes -->
+                <!-- Dark Themes -->
                 <div>
                     <h4 class="text-sm font-semibold text-secondary-600 dark:text-secondary-400 mb-2">Dark Themes</h4>
                     <div class="flex flex-wrap gap-4">
                         {% for theme in themes %}
                         {% if theme.is_dark %}
                         {% with active_theme_id=request.user.profile.theme.id %}
-                        <button type="button" 
+                        <button type="button"
                                 class="theme-btn cursor-pointer relative w-16 h-16 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900
                                 {% if active_theme_id == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
                                 data-theme-id="{{ theme.id }}"
                                 data-is-dark="{{ theme.is_dark|yesno:'true,false' }}"
                                 data-colors='{{ theme.colors_json }}'
                                 title="{{ theme.name }}">
-                            
+
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.0 }}; clip-path: polygon(0 0, 100% 0, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.1 }}; clip-path: polygon(100% 0, 100% 100%, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.2 }}; clip-path: polygon(100% 100%, 0 100%, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.3 }}; clip-path: polygon(0 100%, 0 0, 50% 50%);"></div>
-                            
+
                             {% if active_theme_id == theme.id %}
                             <div class="theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]">
                                 <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -45,26 +135,26 @@
 
                 <hr class="border-secondary-200 dark:border-secondary-700">
 
-                <!-- Section for Light Themes -->
+                <!-- Light Themes -->
                 <div>
                     <h4 class="text-sm font-semibold text-secondary-600 dark:text-secondary-400 mb-2">Light Themes</h4>
                     <div class="flex flex-wrap gap-4">
                         {% for theme in themes %}
                         {% if not theme.is_dark %}
                         {% with active_theme_id=request.user.profile.theme.id %}
-                        <button type="button" 
+                        <button type="button"
                                 class="theme-btn cursor-pointer relative w-16 h-16 rounded-lg overflow-hidden shadow-sm transition-all focus:outline-none ring-2 ring-offset-2 ring-transparent hover:ring-primary-400 dark:ring-offset-secondary-900
                                 {% if active_theme_id == theme.id %}ring-primary-600 dark:ring-primary-500{% endif %}"
                                 data-theme-id="{{ theme.id }}"
                                 data-is-dark="{{ theme.is_dark|yesno:'true,false' }}"
                                 data-colors='{{ theme.colors_json }}'
                                 title="{{ theme.name }}">
-                            
+
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.0 }}; clip-path: polygon(0 0, 100% 0, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.1 }}; clip-path: polygon(100% 0, 100% 100%, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.2 }}; clip-path: polygon(100% 100%, 0 100%, 50% 50%);"></div>
                             <div class="absolute inset-0" style="background-color: {{ theme.preview_colors.3 }}; clip-path: polygon(0 100%, 0 0, 50% 50%);"></div>
-                            
+
                             {% if active_theme_id == theme.id %}
                             <div class="theme-active-indicator absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/10 backdrop-blur-[1px]">
                                 <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>

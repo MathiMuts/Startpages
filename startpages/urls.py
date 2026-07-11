@@ -10,6 +10,7 @@ urlpatterns = [
     # Main page
     path('', views.index, name='index'),
     path('home', views.index, name='index'),
+    path('privacy/', views.privacy, name='privacy'),
     
     # Profile & Settings
     path('profile/', views.profile, name='profile'),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('api/delete-item/', api.delete_item, name='delete_item'),
     path('api/update-theme/', api.update_theme, name='update_theme'),
     path('api/get-theme/', api.get_current_theme, name='get_current_theme'),
+    path('api/update-card-style/', api.update_card_style, name='update_card_style'),
     
     # User specific page
     path('<str:username>/', views.startpage, name='startpage'),

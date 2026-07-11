@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.db import models
-from .models import Section, Link, StartPage, ColorScheme
+from .models import Section, Link, StartPage, ColorScheme, CARD_STYLES
 
 @login_required
 @require_POST
@@ -190,6 +190,21 @@ def update_theme(request):
     except ColorScheme.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Theme not found'}, status=404)
     
+@login_required
+@require_POST
+def update_card_style(request):
+    data = json.loads(request.body)
+    style = data.get('card_style')
+
+    valid_styles = {key for key, _ in CARD_STYLES}
+    if style not in valid_styles:
+        return JsonResponse({'status': 'error', 'message': 'Invalid card style.'}, status=400)
+
+    request.user.profile.card_style = style
+    request.user.profile.save()
+    return JsonResponse({'status': 'success'})
+
+
 @login_required
 def get_current_theme(request):
     try:
