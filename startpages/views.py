@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import StartPage, Profile, ColorScheme
+from .models import StartPage, Profile, ColorScheme, CARD_STYLES
 from .forms import UsernameChangeForm
 from .services import StartPageService
 from django.core.exceptions import PermissionDenied
@@ -11,7 +11,16 @@ from django.http import Http404
 from allauth.socialaccount.models import SocialAccount # pyright: ignore[reportMissingImports]
 
 def index(request):
+    # Logged-in users go straight to their startpage; the landing page is for visitors.
+    if request.user.is_authenticated:
+        if StartPage.objects.filter(user=request.user).exists():
+            return redirect('startpages:startpage', username=request.user.username)
+        return redirect(reverse('startpages:profile') + '?tab=startpages')
     return render(request, 'startpages/pages/index.html')
+
+
+def privacy(request):
+    return render(request, 'startpages/pages/privacy.html')
 
 @login_required
 def startpage(request, username=None, slug=None): 
@@ -56,7 +65,8 @@ def profile(request):
         'startpages': startpages,
         'google_accounts': google_accounts,
         'tab': request.GET.get('tab', 'personal'),
-        'themes': themes
+        'themes': themes,
+        'card_styles': CARD_STYLES,
     })
 
 @login_required

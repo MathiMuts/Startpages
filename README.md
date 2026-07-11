@@ -16,10 +16,10 @@ In development you have to start the tailwind filewatcher as well as the webserv
 >docker compose up -d
 >```
 
-[http://localhost:8000/](http://localhost:xxxx/) voor de devserver. The port is dependent on the settings you set in the .env.
+[http://localhost:8000/](http://localhost:xxxx/) for the dev server. The port is dependent on the settings you set in the .env.
 
 ## Production:
-In production you want to set the environmentvariables to the correct values for production:
+In production you want to set the environment variables to the correct values for production:
 ```
 DJANGO_DEBUG=False
 SSL_TLS=True
@@ -31,4 +31,4 @@ SSL_TLS=True
 >docker compose -f docker-compose.yml up -d --remove-orphans
 >```
 
-[http://localhost:8080/](http://localhost:xxxx/) voor de prodserver. The port is dependent on the settings you set in the .env.
+[http://localhost:8080/](http://localhost:xxxx/) for the prod server. The port is dependent on the settings you set in the .env.

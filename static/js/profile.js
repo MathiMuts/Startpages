@@ -27,7 +27,50 @@ document.addEventListener('DOMContentLoaded', () => {
             setTheme(themeId, isDark, colors);
         });
     });
+
+    // --- Card Style Selection Logic ---
+    document.querySelectorAll('.card-style-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setCardStyle(btn.getAttribute('data-card-style'));
+        });
+    });
 });
+
+function setCardStyle(style) {
+    // 1. Update the live preview instantly
+    const previewWrap = document.getElementById('preview-surface-wrap');
+    if (previewWrap) previewWrap.setAttribute('data-card-style', style);
+
+    // 2. Update the selected-button ring
+    document.querySelectorAll('.card-style-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-card-style') === style;
+        btn.classList.toggle('border-primary-500', isActive);
+        btn.classList.toggle('dark:border-primary-400', isActive);
+        btn.classList.toggle('border-transparent', !isActive);
+    });
+
+    // 3. Persist to the backend
+    fetch('/api/update-card-style/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ card_style: style })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (typeof window.showToast === 'function') window.showToast('Card style updated!', 'success');
+        } else {
+            if (typeof window.showToast === 'function') window.showToast(data.message || 'Failed to update card style.', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error saving card style:', err);
+        if (typeof window.showToast === 'function') window.showToast('Could not save card style.', 'error');
+    });
+}
 
 function getCsrfToken() {
     return document.cookie.split('; ')

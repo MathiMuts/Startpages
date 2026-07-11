@@ -11,10 +11,11 @@ export const DragDrop = {
 
         if (gridContainer) {
             sectionSortable = new Sortable(gridContainer, {
-                animation: 400,
+                animation: 250,
                 easing: "cubic-bezier(0.25, 1, 0.5, 1)",
                 swapThreshold: 0.5,
-                direction: 'horizontal',
+                // NOTE: no forced `direction` — the grid wraps into rows, so letting
+                // Sortable auto-detect keeps the reorder swaps smoothly animated.
                 disabled: !isEditMode,
                 draggable: ".draggable-section",
                 handle: '.section-header',
